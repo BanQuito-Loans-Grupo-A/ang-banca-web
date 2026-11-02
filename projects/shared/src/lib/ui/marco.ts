@@ -5,7 +5,6 @@ import { filter, map } from 'rxjs';
 import { FechaNegocioService } from '../core/fecha-negocio.service';
 import { SesionService } from '../core/sesion.service';
 import { TemaService } from '../core/tema.service';
-import { FechaPipe } from '../pipes/fecha.pipe';
 import { Icono } from './icono';
 import { NombreIcono } from './iconos';
 import { Logo } from './logo';
@@ -20,7 +19,7 @@ export interface EnlaceNavegacion {
 @Component({
   selector: 'bq-marco',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, Icono, Logo, Pie, FechaPipe],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, Icono, Logo, Pie],
   template: `
     <a class="bq-salto" href="#contenido">Saltar al contenido principal</a>
 
