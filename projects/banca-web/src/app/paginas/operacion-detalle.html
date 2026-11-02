@@ -1,0 +1,202 @@
+<div class="bq-pagina bq-pila bq-animar">
+  <a class="volver" routerLink="/mis-operaciones">
+    <bq-icono nombre="flecha-izquierda" [tamano]="16" />
+    Volver a mis préstamos
+  </a>
+
+  @if (cargando()) {
+    <div class="bq-tarjeta bq-tarjeta--contorno"><bq-cargando mensaje="Cargando el detalle del préstamo" [filas]="5" /></div>
+  } @else if (error()) {
+    <div class="bq-aviso bq-aviso--error" role="alert">
+      <bq-icono nombre="alerta" />
+      <p>{{ error() }}</p>
+    </div>
+  } @else if (operacion(); as detalle) {
+    <header class="cabecera">
+      <div>
+        <h1>Préstamo {{ detalle.numeroPrestamo }}</h1>
+        <p class="bq-suave">
+          Desembolsado el {{ detalle.fechaDesembolso | fecha: 'larga' }} · sistema
+          {{ detalle.sistemaAmortizacion | etiqueta }}
+        </p>
+      </div>
+      <bq-chip-estado [estado]="detalle.estado" />
+    </header>
+
+    <div class="bq-rejilla">
+      <div class="bq-tarjeta bq-tarjeta--contorno">
+        <p class="bq-dato__clave">Saldo de capital</p>
+        <p class="bq-dato__valor bq-dato__valor--grande">{{ detalle.saldoCapital | dinero }}</p>
+      </div>
+      <div class="bq-tarjeta bq-tarjeta--contorno">
+        <p class="bq-dato__clave">Días de mora</p>
+        <p class="bq-dato__valor bq-dato__valor--grande">{{ detalle.diaMora }}</p>
+      </div>
+      <div class="bq-tarjeta bq-tarjeta--contorno">
+        <p class="bq-dato__clave">Interés devengado acumulado</p>
+        <p class="bq-dato__valor bq-dato__valor--grande">{{ detalle.interesDevengadoAcumulado | dinero }}</p>
+      </div>
+    </div>
+
+    <section class="bq-tarjeta bq-tarjeta--contorno">
+      <h2>Condiciones</h2>
+      <dl class="datos">
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">Monto aprobado</dt>
+          <dd class="bq-dato__valor">{{ detalle.montoAprobado | dinero }}</dd>
+        </div>
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">Monto neto recibido</dt>
+          <dd class="bq-dato__valor">{{ detalle.montoNeto | dinero }}</dd>
+        </div>
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">SOLCA retenida</dt>
+          <dd class="bq-dato__valor">{{ detalle.contribucionSolca | dinero }}</dd>
+        </div>
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">Seguro mensual</dt>
+          <dd class="bq-dato__valor">{{ detalle.seguroMensual | dinero }}</dd>
+        </div>
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">TEA asignada</dt>
+          <dd class="bq-dato__valor">{{ detalle.teaAsignada | tasa }}</dd>
+        </div>
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">Tasa nominal anual</dt>
+          <dd class="bq-dato__valor">{{ detalle.tasaNominalAnual | tasa }}</dd>
+        </div>
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">Plazo</dt>
+          <dd class="bq-dato__valor">{{ detalle.plazoMes }} meses</dd>
+        </div>
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">Cuenta de desembolso</dt>
+          <dd class="bq-dato__valor">{{ detalle.cuentaDestino }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <div class="pestanas" role="tablist" aria-label="Detalle de la operación">
+      @for (item of pestanas; track item.id) {
+        <button
+          type="button"
+          role="tab"
+          [id]="'pestana-' + item.id"
+          [attr.aria-selected]="pestana() === item.id"
+          [attr.aria-controls]="'panel-' + item.id"
+          [attr.tabindex]="pestana() === item.id ? 0 : -1"
+          [class.activa]="pestana() === item.id"
+          (click)="seleccionar(item.id)"
+        >
+          {{ item.texto }}
+        </button>
+      }
+    </div>
+
+    @if (pestana() === 'tabla') {
+      <div role="tabpanel" id="panel-tabla" aria-labelledby="pestana-tabla" class="bq-tabla-envoltura bq-animar">
+        <table class="bq-tabla">
+          <caption>Tabla de amortización vigente de la operación {{ detalle.numeroPrestamo }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">N.º</th>
+              <th scope="col">Vencimiento</th>
+              <th scope="col" class="bq-num">Capital</th>
+              <th scope="col" class="bq-num">Interés</th>
+              <th scope="col" class="bq-num">Seguro</th>
+              <th scope="col" class="bq-num">Cuota total</th>
+              <th scope="col" class="bq-num">Mora</th>
+              <th scope="col">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (cuota of cuotas(); track cuota.idCuota) {
+              <tr>
+                <th scope="row">{{ cuota.numeroCuota }}</th>
+                <td>{{ cuota.fechaVencimiento | fecha }}</td>
+                <td class="bq-num">{{ cuota.capital | dinero }}</td>
+                <td class="bq-num">{{ cuota.interes | dinero }}</td>
+                <td class="bq-num">{{ cuota.seguro | dinero }}</td>
+                <td class="bq-num">{{ cuota.cuotaTotal | dinero }}</td>
+                <td class="bq-num">{{ cuota.moraAcumulada | dinero }}</td>
+                <td><bq-chip-estado [estado]="cuota.estado" /></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (pestana() === 'pagos') {
+      <div role="tabpanel" id="panel-pagos" aria-labelledby="pestana-pagos" class="bq-animar">
+        @if (pagos().length) {
+          <div class="bq-tabla-envoltura">
+            <table class="bq-tabla">
+              <caption>Pagos aplicados con su desglose por rubro, en orden de prelación</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Pago</th>
+                  <th scope="col" class="bq-num">Recibido</th>
+                  <th scope="col" class="bq-num">Seguro</th>
+                  <th scope="col" class="bq-num">Mora</th>
+                  <th scope="col" class="bq-num">Interés</th>
+                  <th scope="col" class="bq-num">Capital</th>
+                  <th scope="col" class="bq-num">Anticipado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (pago of pagos(); track pago.idPago) {
+                  <tr>
+                    <th scope="row">{{ pago.idPago }}</th>
+                    <td class="bq-num">{{ pago.montoRecibido | dinero }}</td>
+                    <td class="bq-num">{{ pago.aplicadoSeguro | dinero }}</td>
+                    <td class="bq-num">{{ pago.aplicadoMora | dinero }}</td>
+                    <td class="bq-num">{{ pago.aplicadoInteres | dinero }}</td>
+                    <td class="bq-num">{{ pago.aplicadoCapital | dinero }}</td>
+                    <td class="bq-num">{{ pago.aplicadoAnticipado | dinero }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <bq-vacio titulo="Todavía no hay pagos aplicados" icono="dinero" />
+        }
+      </div>
+    }
+
+    @if (pestana() === 'mora') {
+      <div role="tabpanel" id="panel-mora" aria-labelledby="pestana-mora" class="bq-animar">
+        @if (mora().length) {
+          <div class="bq-tabla-envoltura">
+            <table class="bq-tabla">
+              <caption>Cargos de mora acumulados por cuota vencida impaga</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Cuota</th>
+                  <th scope="col">Vencimiento</th>
+                  <th scope="col" class="bq-num">Mora acumulada</th>
+                  <th scope="col" class="bq-num">Mora pagada</th>
+                  <th scope="col" class="bq-num">Mora pendiente</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (cargo of mora(); track cargo.idCuota) {
+                  <tr>
+                    <th scope="row">{{ cargo.numeroCuota }}</th>
+                    <td>{{ cargo.fechaVencimiento | fecha }}</td>
+                    <td class="bq-num">{{ cargo.moraAcumulada | dinero }}</td>
+                    <td class="bq-num">{{ cargo.moraPagada | dinero }}</td>
+                    <td class="bq-num">{{ cargo.moraPendiente | dinero }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <bq-vacio titulo="Esta operación no registra cargos de mora" icono="verificado" />
+        }
+      </div>
+    }
+  }
+</div>

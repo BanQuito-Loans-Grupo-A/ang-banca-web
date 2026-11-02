@@ -1,0 +1,194 @@
+<div class="bq-pagina bq-angosto bq-pila bq-animar">
+  @if (respuesta(); as resultado) {
+    <section class="bq-tarjeta bq-animar" aria-live="polite">
+      @if (resultado.estado === 'REGISTRADA') {
+        <div class="bq-aviso bq-aviso--exito">
+          <bq-icono nombre="verificado" />
+          <div>
+            <h1>Su solicitud quedó registrada</h1>
+            <p>
+              Número de solicitud {{ resultado.idSolicitud }}. Un analista la revisará y le asignará
+              la tasa definitiva.
+            </p>
+          </div>
+        </div>
+      } @else {
+        <div class="bq-aviso bq-aviso--error">
+          <bq-icono nombre="alerta" />
+          <div>
+            <h1>Su solicitud no cumple la evaluación</h1>
+            <p>{{ resultado.motivoRechazo }}</p>
+          </div>
+        </div>
+      }
+
+      <dl class="resumen">
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">Remanente mensual</dt>
+          <dd class="bq-dato__valor">{{ resultado.evaluacionReferencial.remanenteMensual | dinero }}</dd>
+        </div>
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">Cuota máxima admisible</dt>
+          <dd class="bq-dato__valor">{{ resultado.evaluacionReferencial.cuotaMaximaAdmisible | dinero }}</dd>
+        </div>
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">Cuota proyectada</dt>
+          <dd class="bq-dato__valor">{{ resultado.evaluacionReferencial.cuotaProyectada | dinero }}</dd>
+        </div>
+        <div class="bq-dato">
+          <dt class="bq-dato__clave">Tasa utilizada</dt>
+          <dd class="bq-dato__valor">{{ resultado.evaluacionReferencial.teaUtilizada | tasa }}</dd>
+        </div>
+      </dl>
+
+      <div class="acciones">
+        <a class="bq-boton" routerLink="/mis-solicitudes">Ver mis solicitudes</a>
+        <button type="button" class="bq-boton bq-boton--secundario" (click)="reiniciar()">
+          Registrar otra solicitud
+        </button>
+      </div>
+    </section>
+  } @else {
+    <header>
+      <h1>Solicitar un préstamo de consumo</h1>
+      <p class="bq-suave">
+        Sus ingresos y gastos declarados determinan la capacidad de pago. La cuota no puede superar
+        el 40 % de su remanente mensual.
+      </p>
+    </header>
+
+    @if (error()) {
+      <div class="bq-aviso bq-aviso--error" role="alert">
+        <bq-icono nombre="alerta" />
+        <p>{{ error() }}</p>
+      </div>
+    }
+
+    <form class="bq-tarjeta bq-tarjeta--contorno formulario" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+      <fieldset>
+        <legend>Sus datos</legend>
+        <div class="rejilla">
+          <div class="bq-campo">
+            <label class="bq-campo__etiqueta" for="identificacion">Cédula</label>
+            <input
+              id="identificacion"
+              class="bq-entrada"
+              formControlName="identificacion"
+              inputmode="numeric"
+              maxlength="10"
+              autocomplete="off"
+              aria-describedby="ayuda-identificacion"
+              [attr.aria-invalid]="invalido('identificacion')"
+            />
+            <p class="bq-campo__ayuda" id="ayuda-identificacion">10 dígitos, sin guiones</p>
+            @if (invalido('identificacion')) {
+              <p class="bq-campo__error" role="alert">
+                <bq-icono nombre="alerta" [tamano]="15" />
+                Ingrese una cédula de 10 dígitos
+              </p>
+            }
+          </div>
+
+          <div class="bq-campo">
+            <label class="bq-campo__etiqueta" for="cuenta">Cuenta para el desembolso</label>
+            <input
+              id="cuenta"
+              class="bq-entrada"
+              formControlName="numeroCuentaDesembolso"
+              inputmode="numeric"
+              maxlength="20"
+              autocomplete="off"
+              [attr.aria-invalid]="invalido('numeroCuentaDesembolso')"
+            />
+            @if (invalido('numeroCuentaDesembolso')) {
+              <p class="bq-campo__error" role="alert">
+                <bq-icono nombre="alerta" [tamano]="15" />
+                Indique la cuenta donde recibirá el monto neto
+              </p>
+            }
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>El crédito</legend>
+        <div class="rejilla">
+          <div class="bq-campo">
+            <label class="bq-campo__etiqueta" for="monto">Monto solicitado</label>
+            <input
+              id="monto"
+              class="bq-entrada"
+              type="number"
+              formControlName="montoSolicitado"
+              min="500"
+              max="30000"
+              step="50"
+              [attr.aria-invalid]="invalido('montoSolicitado')"
+            />
+            @if (invalido('montoSolicitado')) {
+              <p class="bq-campo__error" role="alert">
+                <bq-icono nombre="alerta" [tamano]="15" />
+                El monto va de USD 500,00 a USD 30.000,00
+              </p>
+            }
+          </div>
+
+          <div class="bq-campo">
+            <label class="bq-campo__etiqueta" for="plazo">Plazo en meses</label>
+            <input
+              id="plazo"
+              class="bq-entrada"
+              type="number"
+              formControlName="plazoMes"
+              min="6"
+              max="60"
+              [attr.aria-invalid]="invalido('plazoMes')"
+            />
+            @if (invalido('plazoMes')) {
+              <p class="bq-campo__error" role="alert">
+                <bq-icono nombre="alerta" [tamano]="15" />
+                El plazo va de 6 a 60 meses
+              </p>
+            }
+          </div>
+
+          <div class="bq-campo">
+            <label class="bq-campo__etiqueta" for="sistema">Sistema de amortización</label>
+            <select id="sistema" class="bq-selector" formControlName="sistemaAmortizacion">
+              <option value="FRANCES">Francés, cuota fija</option>
+              <option value="ALEMAN">Alemán, capital fijo</option>
+            </select>
+          </div>
+
+          <div class="bq-campo">
+            <label class="bq-campo__etiqueta" for="destino">Destino del crédito</label>
+            <select id="destino" class="bq-selector" formControlName="destino">
+              @for (opcion of destinos; track opcion) {
+                <option [value]="opcion">{{ opcion | etiqueta }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Su capacidad de pago</legend>
+        <div class="rejilla">
+          <div class="bq-campo">
+            <label class="bq-campo__etiqueta" for="ingreso">Ingresos mensuales</label>
+            <input id="ingreso" class="bq-entrada" type="number" formControlName="ingresoMensual" min="0" step="10" />
+          </div>
+          <div class="bq-campo">
+            <label class="bq-campo__etiqueta" for="gasto">Gastos mensuales</label>
+            <input id="gasto" class="bq-entrada" type="number" formControlName="gastoMensual" min="0" step="10" />
+          </div>
+        </div>
+      </fieldset>
+
+      <button class="bq-boton bq-boton--bloque" type="submit" [disabled]="enviando()">
+        <bq-icono nombre="documento" [tamano]="18" />
+        {{ enviando() ? 'Enviando su solicitud…' : 'Registrar solicitud' }}
+      </button>
+    </form>
+  }
+</div>

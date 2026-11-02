@@ -1,0 +1,64 @@
+<div class="bq-pagina bq-pila bq-animar">
+  <header>
+    <hr class="bq-regla" />
+    <h1>Mis solicitudes</h1>
+    <p class="bq-suave" id="intro">Consulte el estado de cada solicitud y, si fue rechazada, el motivo.</p>
+  </header>
+
+  <section aria-live="polite">
+    @if (cargando()) {
+      <div class="bq-tarjeta bq-tarjeta--contorno"><bq-cargando mensaje="Buscando sus solicitudes" [filas]="4" /></div>
+    } @else if (solicitudes().length) {
+      <ul class="lista bq-animar-lista">
+        @for (solicitud of solicitudes(); track solicitud.idSolicitud) {
+          <li class="bq-tarjeta bq-tarjeta--contorno bq-tarjeta--interactiva">
+            <div class="bq-tarjeta__titulo">
+              <h2>Solicitud {{ solicitud.idSolicitud }}</h2>
+              <bq-chip-estado [estado]="solicitud.estado" />
+            </div>
+            <dl class="datos">
+              <div class="bq-dato">
+                <dt class="bq-dato__clave">Monto solicitado</dt>
+                <dd class="bq-dato__valor">{{ solicitud.montoSolicitado | dinero }}</dd>
+              </div>
+              <div class="bq-dato">
+                <dt class="bq-dato__clave">Plazo</dt>
+                <dd class="bq-dato__valor">{{ solicitud.plazoMes }} meses</dd>
+              </div>
+              <div class="bq-dato">
+                <dt class="bq-dato__clave">Sistema</dt>
+                <dd class="bq-dato__valor">{{ solicitud.sistemaAmortizacion | etiqueta }}</dd>
+              </div>
+              <div class="bq-dato">
+                <dt class="bq-dato__clave">Destino</dt>
+                <dd class="bq-dato__valor">{{ solicitud.destino | etiqueta }}</dd>
+              </div>
+              <div class="bq-dato">
+                <dt class="bq-dato__clave">Registrada</dt>
+                <dd class="bq-dato__valor">{{ solicitud.fechaHoraRegistro | fecha }}</dd>
+              </div>
+              @if (solicitud.teaAsignada !== null) {
+                <div class="bq-dato">
+                  <dt class="bq-dato__clave">TEA asignada</dt>
+                  <dd class="bq-dato__valor">{{ solicitud.teaAsignada | tasa }}</dd>
+                </div>
+              }
+            </dl>
+            @if (solicitud.motivoRechazo) {
+              <p class="bq-aviso bq-aviso--error motivo">
+                <bq-icono nombre="alerta" [tamano]="18" />
+                {{ solicitud.motivoRechazo }}
+              </p>
+            }
+          </li>
+        }
+      </ul>
+    } @else if (consultado()) {
+      <bq-vacio
+        titulo="No encontramos solicitudes"
+        detalle="Verifique la cédula ingresada o registre una nueva solicitud desde el simulador."
+        icono="documento"
+      />
+    }
+  </section>
+</div>

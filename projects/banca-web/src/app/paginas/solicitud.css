@@ -1,0 +1,50 @@
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bq-esp-6);
+}
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+legend {
+  font-weight: 650;
+  font-size: 1.0625rem;
+  margin-bottom: var(--bq-esp-3);
+  color: var(--bq-texto);
+}
+
+.rejilla {
+  display: grid;
+  gap: var(--bq-esp-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+}
+
+.bq-aviso h1 {
+  font-size: 1.25rem;
+  margin: 0 0 var(--bq-esp-1);
+}
+
+.bq-aviso p {
+  margin: 0;
+}
+
+.resumen {
+  display: grid;
+  gap: var(--bq-esp-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  margin: var(--bq-esp-5) 0;
+}
+
+.resumen dd {
+  margin: 0;
+}
+
+.acciones {
+  display: flex;
+  gap: var(--bq-esp-3);
+  flex-wrap: wrap;
+}

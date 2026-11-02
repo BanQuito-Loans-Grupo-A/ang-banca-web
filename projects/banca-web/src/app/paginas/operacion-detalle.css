@@ -1,0 +1,70 @@
+.volver {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--bq-esp-2);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: gap var(--bq-dur-rapida) var(--bq-salida);
+}
+
+.volver:hover {
+  gap: var(--bq-esp-3);
+}
+
+.cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--bq-esp-4);
+  flex-wrap: wrap;
+}
+
+.cabecera h1 {
+  margin-bottom: var(--bq-esp-1);
+}
+
+.cabecera p {
+  margin: 0;
+}
+
+.datos {
+  display: grid;
+  gap: var(--bq-esp-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr));
+  margin: 0;
+}
+
+.datos dd {
+  margin: 0;
+}
+
+.pestanas {
+  display: flex;
+  gap: var(--bq-esp-1);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--bq-borde);
+}
+
+.pestanas button {
+  padding: var(--bq-esp-3) var(--bq-esp-4);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--bq-texto-suave);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--bq-dur-rapida) var(--bq-salida),
+    border-color var(--bq-dur-rapida) var(--bq-salida);
+}
+
+.pestanas button:hover {
+  color: var(--bq-texto);
+}
+
+.pestanas button.activa {
+  color: var(--bq-marca);
+  border-bottom-color: var(--bq-marca);
+}

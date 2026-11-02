@@ -1,0 +1,60 @@
+<div class="bq-pagina bq-pila bq-animar">
+  <header>
+    <hr class="bq-regla" />
+    <h1>Mis préstamos</h1>
+    <p class="bq-suave" id="intro">Saldo, próximo vencimiento y estado de cartera de cada operación vigente.</p>
+  </header>
+
+  <section aria-live="polite">
+    @if (cargando()) {
+      <div class="bq-tarjeta bq-tarjeta--contorno"><bq-cargando mensaje="Buscando sus préstamos" [filas]="4" /></div>
+    } @else if (operaciones().length) {
+      <ul class="lista bq-animar-lista">
+        @for (operacion of operaciones(); track operacion.numeroPrestamo) {
+          <li class="bq-tarjeta bq-tarjeta--contorno bq-tarjeta--interactiva">
+            <div class="bq-tarjeta__titulo">
+              <h2>{{ operacion.numeroPrestamo }}</h2>
+              <bq-chip-estado [estado]="operacion.estado" />
+            </div>
+            <dl class="datos">
+              <div class="bq-dato">
+                <dt class="bq-dato__clave">Saldo de capital</dt>
+                <dd class="bq-dato__valor">{{ operacion.saldoCapital | dinero }}</dd>
+              </div>
+              <div class="bq-dato">
+                <dt class="bq-dato__clave">Monto original</dt>
+                <dd class="bq-dato__valor">{{ operacion.montoAprobado | dinero }}</dd>
+              </div>
+              <div class="bq-dato">
+                <dt class="bq-dato__clave">Próximo vencimiento</dt>
+                <dd class="bq-dato__valor">{{ operacion.fechaProximoVencimiento | fecha }}</dd>
+              </div>
+              <div class="bq-dato">
+                <dt class="bq-dato__clave">Valor de la cuota</dt>
+                <dd class="bq-dato__valor">{{ operacion.valorProximaCuota | dinero }}</dd>
+              </div>
+              <div class="bq-dato">
+                <dt class="bq-dato__clave">Sistema</dt>
+                <dd class="bq-dato__valor">{{ operacion.sistemaAmortizacion | etiqueta }}</dd>
+              </div>
+              <div class="bq-dato">
+                <dt class="bq-dato__clave">Días de mora</dt>
+                <dd class="bq-dato__valor">{{ operacion.diaMora }}</dd>
+              </div>
+            </dl>
+            <a class="bq-boton bq-boton--secundario bq-boton--pequeno enlace" [routerLink]="['/mis-operaciones', operacion.numeroPrestamo]">
+              Ver detalle y tabla
+              <bq-icono nombre="flecha-derecha" [tamano]="16" />
+            </a>
+          </li>
+        }
+      </ul>
+    } @else if (consultado()) {
+      <bq-vacio
+        titulo="No encontramos préstamos"
+        detalle="Verifique la cédula ingresada. Si aún no tiene un crédito, puede simular uno desde el simulador."
+        icono="cartera"
+      />
+    }
+  </section>
+</div>
