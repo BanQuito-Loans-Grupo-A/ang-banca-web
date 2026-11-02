@@ -2,16 +2,17 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
-  ApiBanquito, CondicionesSimulador, CuentaCliente, DestinoCredito, DineroPipe, Enfocar, EtiquetaPipe, Icono, SesionService,
+  ApiBanquito, CondicionesSimulador, CuentaCliente, DestinoCredito, DineroPipe, Enfocar, EtiquetaPipe, Icono, Rango, SesionService,
   SistemaAmortizacion, SolicitudRegistrada, TasaPipe, mensajeDe,
 } from 'shared';
 
 const SISTEMAS: SistemaAmortizacion[] = ['FRANCES', 'ALEMAN'];
+const MAXIMO_MENSUAL = 999999.99;
 
 @Component({
   selector: 'bw-solicitud',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, Icono, DineroPipe, TasaPipe, EtiquetaPipe, Enfocar],
+  imports: [ReactiveFormsModule, RouterLink, Icono, DineroPipe, TasaPipe, EtiquetaPipe, Enfocar, Rango],
   templateUrl: './solicitud.html',
   styleUrl: './solicitud.css',
 })
@@ -34,6 +35,8 @@ export class Solicitud {
   protected readonly identificacion = this.sesion.sesion()?.identificacion ?? '';
   protected readonly nombreCliente = this.sesion.sesion()?.nombre ?? '';
 
+  protected readonly maximoMensual = MAXIMO_MENSUAL;
+
   protected readonly formulario = this.fb.nonNullable.group({
     identificacion: [{ value: this.identificacion, disabled: true }, [Validators.required, Validators.pattern(/^\d{10}$/)]],
     numeroCuentaDesembolso: ['', [Validators.required, Validators.maxLength(20)]],
@@ -41,8 +44,8 @@ export class Solicitud {
     plazoMes: [12, [Validators.required, Validators.min(6), Validators.max(60)]],
     sistemaAmortizacion: ['FRANCES' as SistemaAmortizacion, Validators.required],
     destino: ['BIENES_DURADEROS' as DestinoCredito, Validators.required],
-    ingresoMensual: [3500, [Validators.required, Validators.min(0)]],
-    gastoMensual: [1200, [Validators.required, Validators.min(0)]],
+    ingresoMensual: [3500, [Validators.required, Validators.min(0), Validators.max(MAXIMO_MENSUAL)]],
+    gastoMensual: [1200, [Validators.required, Validators.min(0), Validators.max(MAXIMO_MENSUAL)]],
   });
 
   constructor() {

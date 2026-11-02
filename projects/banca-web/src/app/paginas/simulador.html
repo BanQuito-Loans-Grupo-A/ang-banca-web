@@ -33,6 +33,9 @@
           class="bq-entrada"
           type="number"
           formControlName="monto"
+          bqRango
+          [bqMax]="limites().montoMaximo"
+          [bqDecimales]="2"
           [min]="limites().montoMinimo"
           [max]="limites().montoMaximo"
           step="50"

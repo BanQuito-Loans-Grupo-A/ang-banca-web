@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ApiBanquito, Icono, PantallaIngreso, SesionService, mensajeDe } from 'shared';
+import { ApiBanquito, Icono, PantallaIngreso, SesionService, SoloDigitos, mensajeDe } from 'shared';
 
 @Component({
   selector: 'bw-ingreso',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, Icono, PantallaIngreso],
+  imports: [ReactiveFormsModule, RouterLink, Icono, PantallaIngreso, SoloDigitos],
   template: `
     <bq-pantalla-ingreso
       titulo="Bienvenido a BanQuito"
@@ -30,6 +30,7 @@ import { ApiBanquito, Icono, PantallaIngreso, SesionService, mensajeDe } from 's
             id="identificacion"
             class="bq-entrada"
             formControlName="identificacion"
+            bqSoloDigitos
             inputmode="numeric"
             maxlength="10"
             autocomplete="username"

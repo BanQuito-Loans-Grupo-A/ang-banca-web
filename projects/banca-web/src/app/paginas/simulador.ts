@@ -10,6 +10,7 @@ import {
   Enfocar,
   FechaPipe,
   Icono,
+  Rango,
   Simulacion,
   SistemaAmortizacion,
   TasaPipe,
@@ -19,7 +20,7 @@ import {
 @Component({
   selector: 'bw-simulador',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, Icono, Cargando, CifraAnimada, Enfocar, DineroPipe, FechaPipe, TasaPipe],
+  imports: [ReactiveFormsModule, RouterLink, Icono, Cargando, CifraAnimada, Enfocar, Rango, DineroPipe, FechaPipe, TasaPipe],
   templateUrl: './simulador.html',
   styleUrl: './simulador.css',
 })

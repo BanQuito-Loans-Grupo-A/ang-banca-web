@@ -136,6 +136,9 @@
               class="bq-entrada"
               type="number"
               formControlName="montoSolicitado"
+              bqRango
+              [bqMax]="limites()?.montoMaximo ?? 30000"
+              [bqDecimales]="2"
               [min]="limites()?.montoMinimo ?? 500"
               [max]="limites()?.montoMaximo ?? 30000"
               step="50"
@@ -156,6 +159,10 @@
               class="bq-entrada"
               type="number"
               formControlName="plazoMes"
+              bqRango
+              [bqMax]="limites()?.plazoMaximo ?? 60"
+              [bqDecimales]="0"
+              step="1"
               [min]="limites()?.plazoMinimo ?? 6"
               [max]="limites()?.plazoMaximo ?? 60"
               [attr.aria-invalid]="invalido('plazoMes')"
@@ -192,11 +199,45 @@
         <div class="rejilla">
           <div class="bq-campo">
             <label class="bq-campo__etiqueta" for="ingreso">Ingresos mensuales</label>
-            <input id="ingreso" class="bq-entrada" type="number" formControlName="ingresoMensual" min="0" step="10" />
+            <input
+              id="ingreso"
+              class="bq-entrada"
+              type="number"
+              formControlName="ingresoMensual"
+              bqRango
+              [bqMax]="maximoMensual"
+              [bqDecimales]="2"
+              min="0"
+              step="10"
+              [attr.aria-invalid]="invalido('ingresoMensual')"
+            />
+            @if (invalido('ingresoMensual')) {
+              <p class="bq-campo__error" role="alert">
+                <bq-icono nombre="alerta" [tamano]="15" />
+                Indique sus ingresos mensuales, desde USD 0 hasta {{ maximoMensual | dinero }}
+              </p>
+            }
           </div>
           <div class="bq-campo">
             <label class="bq-campo__etiqueta" for="gasto">Gastos mensuales</label>
-            <input id="gasto" class="bq-entrada" type="number" formControlName="gastoMensual" min="0" step="10" />
+            <input
+              id="gasto"
+              class="bq-entrada"
+              type="number"
+              formControlName="gastoMensual"
+              bqRango
+              [bqMax]="maximoMensual"
+              [bqDecimales]="2"
+              min="0"
+              step="10"
+              [attr.aria-invalid]="invalido('gastoMensual')"
+            />
+            @if (invalido('gastoMensual')) {
+              <p class="bq-campo__error" role="alert">
+                <bq-icono nombre="alerta" [tamano]="15" />
+                Indique sus gastos mensuales, desde USD 0 hasta {{ maximoMensual | dinero }}
+              </p>
+            }
           </div>
         </div>
       </fieldset>
