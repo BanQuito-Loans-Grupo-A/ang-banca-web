@@ -1,0 +1,11 @@
+[build]
+  command = "node -e \"const fs=require('fs'); const file='projects/banca-web/src/entorno.real.ts'; let content=fs.readFileSync(file,'utf8'); content=content.replace('__VARIABLE_API_GCP__', process.env.API_GCP); fs.writeFileSync(file, content);\" && npx ng build banca-web --configuration real --output-path dist/banca-web"
+  publish = "dist/banca-web/browser"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

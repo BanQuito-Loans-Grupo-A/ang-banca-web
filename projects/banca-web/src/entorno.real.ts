@@ -1,4 +1,4 @@
 export const entorno = {
   usarMock: false,
-  baseApi: 'http://localhost:8080',
+  baseApi: '__VARIABLE_API_GCP__',
 };
