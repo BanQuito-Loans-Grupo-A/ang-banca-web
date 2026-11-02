@@ -11,6 +11,7 @@ import {
   ReporteMorosidad, ReporteRollRate, ReporteSaludPortafolio, ResolucionRespuesta, ResumenAbono,
   Simulacion, SolicitudAbono, SolicitudBandeja, SolicitudCliente, SolicitudDetalle,
   SolicitudRegistrada, SolicitudSimulacion, TramoCartera, ClienteIdentificado, AnalistaIdentificado,
+  CuentaCliente, DatosTramo, NuevoValorParametro,
 } from '../core/modelos';
 
 @Injectable()
@@ -42,6 +43,10 @@ export class ApiHttp extends ApiBanquito {
 
   fechaNegocio(): Observable<FechaNegocio> {
     return this.http.get<FechaNegocio>(this.url('/fecha-negocio'));
+  }
+
+  cuentasDelCliente(identificacion: string): Observable<CuentaCliente[]> {
+    return this.http.get<CuentaCliente[]>(this.url(`/clientes/${identificacion}/cuentas`));
   }
 
   identificarCliente(identificacion: string): Observable<ClienteIdentificado> {
@@ -173,8 +178,20 @@ export class ApiHttp extends ApiBanquito {
     return this.http.get<Parametro[]>(this.url('/parametros'));
   }
 
-  tramosCartera(): Observable<TramoCartera[]> {
-    return this.http.get<TramoCartera[]>(this.url('/tramos-cartera'));
+  parametrosProgramados(): Observable<Parametro[]> {
+    return this.http.get<Parametro[]>(this.url('/parametros/programados'));
+  }
+
+  actualizarParametro(codigo: string, cuerpo: NuevoValorParametro): Observable<Parametro> {
+    return this.http.put<Parametro>(this.url(`/parametros/${codigo}`), cuerpo);
+  }
+
+  tramosCartera(fecha?: string): Observable<TramoCartera[]> {
+    return this.http.get<TramoCartera[]>(this.url('/tramos-cartera'), { params: fecha ? { fecha } : {} });
+  }
+
+  programarTramos(tramos: DatosTramo[], vigenteDesde: string): Observable<TramoCartera[]> {
+    return this.http.put<TramoCartera[]>(this.url('/tramos-cartera'), tramos, { params: { vigenteDesde } });
   }
 
   reporteMorosidad(fechaCorte: string): Observable<ReporteMorosidad> {

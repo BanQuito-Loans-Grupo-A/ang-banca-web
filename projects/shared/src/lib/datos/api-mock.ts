@@ -14,9 +14,43 @@ import {
   ReporteMorosidad, ReporteRollRate, ReporteSaludPortafolio, ResolucionRespuesta, ResumenAbono,
   Simulacion, SolicitudAbono, SolicitudBandeja, SolicitudCliente, SolicitudDetalle,
   SolicitudRegistrada, SolicitudSimulacion, TramoCartera, ClienteIdentificado, AnalistaIdentificado,
+  CuentaCliente, DatosTramo, NuevoValorParametro,
 } from '../core/modelos';
 
 const RETARDO = 260;
+
+const HISTORIAL_PARAMETROS: Parametro[] = (
+  [
+    ['PAR-01', 'Monto mínimo del crédito', 500],
+    ['PAR-02', 'Monto máximo del crédito', 30000],
+    ['PAR-03', 'Plazo mínimo en meses', 6],
+    ['PAR-04', 'Plazo máximo en meses', 60],
+    ['PAR-05', 'TEA máxima del segmento de consumo', 16.77],
+    ['PAR-06', 'TEA referencial de simulación', 15.5],
+    ['PAR-07', 'Factor mensual del seguro de desgravamen', 0.06],
+    ['PAR-08', 'Contribución SOLCA', 0.5],
+    ['PAR-09', 'Límite de cuota sobre el remanente mensual', 40],
+    ['PAR-10', 'Factor de mora', 1.1],
+    ['PAR-11', 'Base de cálculo de intereses en días', 360],
+    ['PAR-12', 'Valor mínimo de abono extraordinario', 50],
+  ] as Array<[string, string, number]>
+).map(([codigo, nombre, valorNumerico]) => ({ codigo, nombre, valorNumerico, valorFecha: null, vigenteDesde: '2026-10-01' }));
+
+const HISTORIAL_TRAMOS: TramoCartera[] = [
+  { numeroTramo: 1, diaMoraMinimo: 0, estadoCartera: 'POR_VENCER', devengaEnResultado: true, acumulaMora: false, porcentajeProvision: 1, vigenteDesde: '2026-10-01' },
+  { numeroTramo: 2, diaMoraMinimo: 1, estadoCartera: 'VENCIDA', devengaEnResultado: true, acumulaMora: true, porcentajeProvision: 5, vigenteDesde: '2026-10-01' },
+  { numeroTramo: 3, diaMoraMinimo: 31, estadoCartera: 'VENCIDA', devengaEnResultado: true, acumulaMora: true, porcentajeProvision: 25, vigenteDesde: '2026-10-01' },
+  { numeroTramo: 4, diaMoraMinimo: 91, estadoCartera: 'EN_LITIGIO', devengaEnResultado: false, acumulaMora: true, porcentajeProvision: 60, vigenteDesde: '2026-10-01' },
+  { numeroTramo: 5, diaMoraMinimo: 181, estadoCartera: 'CASTIGADA', devengaEnResultado: false, acumulaMora: false, porcentajeProvision: 100, vigenteDesde: '2026-10-01' },
+];
+
+function vigentesAl(fecha: string): Parametro[] {
+  const codigos = [...new Set(HISTORIAL_PARAMETROS.map((parametro) => parametro.codigo))];
+  return codigos.map((codigo) =>
+    HISTORIAL_PARAMETROS.filter((p) => p.codigo === codigo && p.vigenteDesde <= fecha)
+      .sort((a, b) => b.vigenteDesde.localeCompare(a.vigenteDesde))[0],
+  ).filter((parametro): parametro is Parametro => !!parametro);
+}
 
 function responder<T>(valor: T): Observable<T> {
   return of(valor).pipe(delay(RETARDO));
@@ -71,6 +105,16 @@ export class ApiMock extends ApiBanquito {
       estado: 'ABIERTO',
       ultimaFechaCerrada: sumarDias(FECHA_NEGOCIO_INICIAL, -1),
     });
+  }
+
+  cuentasDelCliente(identificacion: string): Observable<CuentaCliente[]> {
+    const propias = OPERACIONES.filter(({ detalle }) => detalle.identificacionCliente === identificacion)
+      .map(({ detalle }) => detalle.cuentaDestino);
+    const numeros = propias.length ? [...new Set(propias)] : ['2200000001'];
+    return responder([
+      ...numeros.map((numeroCuenta) => ({ numeroCuenta, tipoCuenta: 'AHORROS', estado: 'ACTIVA' })),
+      { numeroCuenta: `${numeros[0].slice(0, -3)}999`, tipoCuenta: 'CORRIENTE', estado: 'ACTIVA' },
+    ]);
   }
 
   identificarCliente(identificacion: string): Observable<ClienteIdentificado> {
@@ -517,34 +561,56 @@ export class ApiMock extends ApiBanquito {
   }
 
   parametros(): Observable<Parametro[]> {
-    const filas: Array<[string, string, number]> = [
-      ['PAR-01', 'Monto mínimo del crédito', 500],
-      ['PAR-02', 'Monto máximo del crédito', 30000],
-      ['PAR-03', 'Plazo mínimo en meses', 6],
-      ['PAR-04', 'Plazo máximo en meses', 60],
-      ['PAR-05', 'TEA máxima del segmento de consumo', 16.77],
-      ['PAR-06', 'TEA referencial de simulación', 15.5],
-      ['PAR-07', 'Factor mensual del seguro de desgravamen', 0.06],
-      ['PAR-08', 'Contribución SOLCA', 0.5],
-      ['PAR-09', 'Límite de cuota sobre el remanente', 40],
-      ['PAR-10', 'Factor de mora', 1.1],
-      ['PAR-11', 'Base de cálculo de intereses', 360],
-      ['PAR-12', 'Valor mínimo de abono extraordinario', 50],
-    ];
-    return responder(filas.map(([codigo, nombre, valorNumerico]) => ({
-      codigo, nombre, valorNumerico, valorFecha: null, vigenteDesde: '2026-10-01',
-    })));
+    return responder(vigentesAl(FECHA_NEGOCIO_INICIAL));
   }
 
-  tramosCartera(): Observable<TramoCartera[]> {
-    const filas: TramoCartera[] = [
-      { numeroTramo: 1, diaMoraMinimo: 0, estadoCartera: 'POR_VENCER', devengaEnResultado: true, acumulaMora: false, porcentajeProvision: 1, vigenteDesde: '2026-10-01' },
-      { numeroTramo: 2, diaMoraMinimo: 1, estadoCartera: 'VENCIDA', devengaEnResultado: true, acumulaMora: true, porcentajeProvision: 5, vigenteDesde: '2026-10-01' },
-      { numeroTramo: 3, diaMoraMinimo: 31, estadoCartera: 'VENCIDA', devengaEnResultado: true, acumulaMora: true, porcentajeProvision: 25, vigenteDesde: '2026-10-01' },
-      { numeroTramo: 4, diaMoraMinimo: 91, estadoCartera: 'EN_LITIGIO', devengaEnResultado: false, acumulaMora: true, porcentajeProvision: 60, vigenteDesde: '2026-10-01' },
-      { numeroTramo: 5, diaMoraMinimo: 181, estadoCartera: 'CASTIGADA', devengaEnResultado: false, acumulaMora: false, porcentajeProvision: 100, vigenteDesde: '2026-10-01' },
-    ];
-    return responder(filas);
+  parametrosProgramados(): Observable<Parametro[]> {
+    return responder(
+      HISTORIAL_PARAMETROS.filter((parametro) => parametro.vigenteDesde > FECHA_NEGOCIO_INICIAL)
+        .sort((a, b) => a.vigenteDesde.localeCompare(b.vigenteDesde) || a.codigo.localeCompare(b.codigo)),
+    );
+  }
+
+  actualizarParametro(codigo: string, cuerpo: NuevoValorParametro): Observable<Parametro> {
+    const actual = vigentesAl(FECHA_NEGOCIO_INICIAL).find((parametro) => parametro.codigo === codigo);
+    if (!actual || actual.valorNumerico === null) {
+      return throwError(() => new ErrorBanquito(`El parámetro ${codigo} no se puede modificar`, 'PETICION_INVALIDA', 422));
+    }
+    if (!(cuerpo.valor > 0)) {
+      return throwError(() => new ErrorBanquito(`El valor de ${codigo} debe ser mayor que cero`, 'PETICION_INVALIDA', 422));
+    }
+    if (cuerpo.vigenteDesde <= FECHA_NEGOCIO_INICIAL) {
+      return throwError(() => new ErrorBanquito('El nuevo valor rige desde el siguiente cierre', 'PETICION_INVALIDA', 422));
+    }
+    const registro: Parametro = { ...actual, valorNumerico: cuerpo.valor, vigenteDesde: cuerpo.vigenteDesde };
+    const indice = HISTORIAL_PARAMETROS.findIndex((p) => p.codigo === codigo && p.vigenteDesde === cuerpo.vigenteDesde);
+    if (indice >= 0) {
+      HISTORIAL_PARAMETROS[indice] = registro;
+    } else {
+      HISTORIAL_PARAMETROS.push(registro);
+    }
+    return responder(registro);
+  }
+
+  tramosCartera(fecha?: string): Observable<TramoCartera[]> {
+    const corte = fecha ?? FECHA_NEGOCIO_INICIAL;
+    const vigencias = [...new Set(HISTORIAL_TRAMOS.map((tramo) => tramo.vigenteDesde))].filter((v) => v <= corte).sort();
+    const ultima = vigencias[vigencias.length - 1];
+    return responder(HISTORIAL_TRAMOS.filter((tramo) => tramo.vigenteDesde === ultima));
+  }
+
+  programarTramos(tramos: DatosTramo[], vigenteDesde: string): Observable<TramoCartera[]> {
+    if (vigenteDesde <= FECHA_NEGOCIO_INICIAL) {
+      return throwError(() => new ErrorBanquito('La tabla rige desde el siguiente cierre', 'PETICION_INVALIDA', 422));
+    }
+    for (let i = HISTORIAL_TRAMOS.length - 1; i >= 0; i--) {
+      if (HISTORIAL_TRAMOS[i].vigenteDesde === vigenteDesde) {
+        HISTORIAL_TRAMOS.splice(i, 1);
+      }
+    }
+    const nuevos = tramos.map((tramo) => ({ ...tramo, vigenteDesde }));
+    HISTORIAL_TRAMOS.push(...nuevos);
+    return responder(nuevos);
   }
 
   reporteMorosidad(fechaCorte: string): Observable<ReporteMorosidad> {

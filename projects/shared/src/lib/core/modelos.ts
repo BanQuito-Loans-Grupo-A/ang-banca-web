@@ -495,3 +495,23 @@ export interface AnalistaIdentificado {
   nombreCompleto: string;
   estado: EstadoPersona;
 }
+
+export interface CuentaCliente {
+  numeroCuenta: string;
+  tipoCuenta: string;
+  estado: string;
+}
+
+export interface NuevoValorParametro {
+  valor: number;
+  vigenteDesde: string;
+}
+
+export interface DatosTramo {
+  numeroTramo: number;
+  diaMoraMinimo: number;
+  estadoCartera: EstadoPrestamo;
+  devengaEnResultado: boolean;
+  acumulaMora: boolean;
+  porcentajeProvision: number;
+}

@@ -36,6 +36,15 @@ const ETIQUETAS: Record<string, string> = {
   APLICADA: 'Aplicada',
   REFERENCIAL: 'Referencial',
   DEFINITIVA: 'Definitiva',
+  AHORROS: 'Ahorros',
+  CORRIENTE: 'Corriente',
+  CUOTA: 'Cuota',
+  ABONO_EXTRAORDINARIO: 'Abono extraordinario',
+  CANCELACION_ANTICIPADA: 'Cancelación anticipada',
+  SEGURO: 'Seguro',
+  MORA: 'Mora',
+  INTERES: 'Interés',
+  CAPITAL: 'Capital',
 };
 
 @Pipe({ name: 'etiqueta' })

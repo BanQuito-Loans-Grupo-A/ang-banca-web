@@ -7,7 +7,7 @@ import {
   ResolucionRespuesta, ResumenAbono, Simulacion, SolicitudAbono, SolicitudBandeja, SolicitudCliente,
   SolicitudDetalle, SolicitudRegistrada, SolicitudSimulacion, TramoCartera,
   RegistroSolicitud, AprobacionSolicitud, RechazoSolicitud, DesembolsoSolicitud,
-  ClienteIdentificado, AnalistaIdentificado,
+  ClienteIdentificado, AnalistaIdentificado, CuentaCliente, DatosTramo, NuevoValorParametro,
 } from '../core/modelos';
 
 export abstract class ApiBanquito {
@@ -16,6 +16,7 @@ export abstract class ApiBanquito {
   abstract fechaNegocio(): Observable<FechaNegocio>;
 
   abstract identificarCliente(identificacion: string): Observable<ClienteIdentificado>;
+  abstract cuentasDelCliente(identificacion: string): Observable<CuentaCliente[]>;
   abstract identificarAnalista(identificacion: string): Observable<AnalistaIdentificado>;
 
   abstract registrarSolicitud(registro: RegistroSolicitud): Observable<SolicitudRegistrada>;
@@ -47,7 +48,10 @@ export abstract class ApiBanquito {
   abstract etapasCierre(fecha: string): Observable<EtapaCierreRespuesta[]>;
 
   abstract parametros(): Observable<Parametro[]>;
-  abstract tramosCartera(): Observable<TramoCartera[]>;
+  abstract parametrosProgramados(): Observable<Parametro[]>;
+  abstract actualizarParametro(codigo: string, cuerpo: NuevoValorParametro): Observable<Parametro>;
+  abstract tramosCartera(fecha?: string): Observable<TramoCartera[]>;
+  abstract programarTramos(tramos: DatosTramo[], vigenteDesde: string): Observable<TramoCartera[]>;
 
   abstract reporteMorosidad(fechaCorte: string): Observable<ReporteMorosidad>;
   abstract reporteComposicion(fechaCorte: string): Observable<ReporteComposicionTramos>;
