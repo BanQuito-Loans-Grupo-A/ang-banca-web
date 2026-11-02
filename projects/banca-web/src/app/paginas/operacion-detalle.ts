@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   ApiBanquito, Cargando, CargoMoraCuota, ChipEstado, CuotaTabla, DineroPipe, EtiquetaPipe, FechaPipe,
@@ -26,11 +26,19 @@ export class OperacionDetallePagina {
   protected readonly error = signal('');
   protected readonly pestana = signal<Pestana>('tabla');
 
-  protected readonly pestanas: Array<{ id: Pestana; texto: string }> = [
+  protected readonly tieneMora = computed(
+    () => (this.operacion()?.diaMora ?? 0) > 0 || this.mora().some((cargo) => cargo.moraPendiente > 0),
+  );
+
+  protected readonly pestanas = computed<Array<{ id: Pestana; texto: string }>>(() => [
     { id: 'tabla', texto: 'Tabla de amortización' },
     { id: 'pagos', texto: 'Pagos aplicados' },
-    { id: 'mora', texto: 'Cargos de mora' },
-  ];
+    ...(this.tieneMora() ? [{ id: 'mora' as Pestana, texto: 'Cargos de mora' }] : []),
+  ]);
+
+  protected readonly pestanaVisible = computed<Pestana>(() =>
+    this.pestanas().some((item) => item.id === this.pestana()) ? this.pestana() : 'tabla',
+  );
 
   constructor() {
     const numero = this.ruta.snapshot.paramMap.get('numero') ?? '';
@@ -46,7 +54,7 @@ export class OperacionDetallePagina {
     });
     this.api.tablaAmortizacion(numero).subscribe((valor) => this.cuotas.set(valor));
     this.api.pagosDeOperacion(numero, 0).subscribe((pagina) => this.pagos.set(pagina.content));
-    this.api.cargosMora(numero).subscribe((valor) => this.mora.set(valor));
+    this.api.cargosMora(numero).subscribe((valor) => this.mora.set(valor.filter((cargo) => cargo.moraAcumulada > 0)));
   }
 
   protected seleccionar(id: Pestana): void {

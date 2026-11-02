@@ -77,15 +77,15 @@
     </section>
 
     <div class="pestanas" role="tablist" aria-label="Detalle de la operación">
-      @for (item of pestanas; track item.id) {
+      @for (item of pestanas(); track item.id) {
         <button
           type="button"
           role="tab"
           [id]="'pestana-' + item.id"
-          [attr.aria-selected]="pestana() === item.id"
+          [attr.aria-selected]="pestanaVisible() === item.id"
           [attr.aria-controls]="'panel-' + item.id"
-          [attr.tabindex]="pestana() === item.id ? 0 : -1"
-          [class.activa]="pestana() === item.id"
+          [attr.tabindex]="pestanaVisible() === item.id ? 0 : -1"
+          [class.activa]="pestanaVisible() === item.id"
           (click)="seleccionar(item.id)"
         >
           {{ item.texto }}
@@ -93,7 +93,7 @@
       }
     </div>
 
-    @if (pestana() === 'tabla') {
+    @if (pestanaVisible() === 'tabla') {
       <div role="tabpanel" id="panel-tabla" aria-labelledby="pestana-tabla" class="bq-tabla-envoltura bq-animar">
         <table class="bq-tabla">
           <caption>Tabla de amortización vigente de la operación {{ detalle.numeroPrestamo }}</caption>
@@ -127,7 +127,7 @@
       </div>
     }
 
-    @if (pestana() === 'pagos') {
+    @if (pestanaVisible() === 'pagos') {
       <div role="tabpanel" id="panel-pagos" aria-labelledby="pestana-pagos" class="bq-animar">
         @if (pagos().length) {
           <div class="bq-tabla-envoltura">
@@ -165,7 +165,7 @@
       </div>
     }
 
-    @if (pestana() === 'mora') {
+    @if (pestanaVisible() === 'mora') {
       <div role="tabpanel" id="panel-mora" aria-labelledby="pestana-mora" class="bq-animar">
         @if (mora().length) {
           <div class="bq-tabla-envoltura">

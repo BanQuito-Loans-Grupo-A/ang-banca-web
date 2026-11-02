@@ -104,7 +104,7 @@
           <p class="resultado__titulo">
             {{ simulacion.sistemaAmortizacion === 'ALEMAN' ? 'Tu primera cuota estimada' : 'Tu cuota mensual estimada' }}
           </p>
-          <p class="cifra">{{ simulacion.cuotaPrimera | dinero }}</p>
+          <p class="cifra"><bq-cifra [valor]="simulacion.cuotaPrimera" /></p>
           <p class="resultado__nota">
             Por {{ simulacion.plazoMeses }} meses
             <span aria-hidden="true">·</span>
@@ -112,7 +112,7 @@
             <span aria-hidden="true">·</span>
             TEA {{ simulacion.teaReferencial | tasa }}
             @if (simulacion.sistemaAmortizacion === 'ALEMAN') {
-              <br />Baja mes a mes hasta {{ simulacion.cuotaUltima | dinero }} en la última cuota.
+              <br />Baja mes a mes hasta <bq-cifra [valor]="simulacion.cuotaUltima" /> en la última cuota.
             }
           </p>
 
@@ -120,17 +120,17 @@
             <div class="panel__dato">
               <bq-icono nombre="billetera" [tamano]="26" />
               <dt>Recibes en tu cuenta</dt>
-              <dd>{{ simulacion.montoNeto | dinero }}</dd>
+              <dd><bq-cifra [valor]="simulacion.montoNeto" /></dd>
             </div>
             <div class="panel__dato">
               <bq-icono nombre="monedas" [tamano]="26" />
               <dt>Total de intereses</dt>
-              <dd>{{ simulacion.totalIntereses | dinero }}</dd>
+              <dd><bq-cifra [valor]="simulacion.totalIntereses" /></dd>
             </div>
             <div class="panel__dato">
               <bq-icono nombre="escudo" [tamano]="26" />
               <dt>Seguro mensual</dt>
-              <dd>{{ simulacion.seguroMensual | dinero }}</dd>
+              <dd><bq-cifra [valor]="simulacion.seguroMensual" /></dd>
             </div>
           </dl>
           <p class="panel__nota">
@@ -140,7 +140,7 @@
 
           <p class="total">
             <span>Total a pagar</span>
-            <strong>{{ totalPagar(simulacion) | dinero }}</strong>
+            <strong><bq-cifra [valor]="totalPagar(simulacion)" /></strong>
           </p>
 
           <div class="acciones">
@@ -157,7 +157,13 @@
                 <bq-icono nombre="chevron-derecha" [tamano]="18" />
               </span>
             </button>
-            <a class="bq-boton bq-boton--pequeno" routerLink="/solicitud">Solicitar este crédito</a>
+            <a
+              class="bq-boton bq-boton--pequeno"
+              routerLink="/solicitud"
+              [queryParams]="{ monto: simulacion.monto, plazo: simulacion.plazoMeses, sistema: simulacion.sistemaAmortizacion }"
+            >
+              Solicitar este crédito
+            </a>
           </div>
         </div>
       }
@@ -166,14 +172,14 @@
 
   <ul class="beneficios bq-animar-lista">
     <li class="beneficio">
-      <bq-icono nombre="rayo" [tamano]="34" [grosor]="1.5" />
+      <bq-icono nombre="rayo" [tamano]="34" />
       <div>
         <h3>Proceso 100% en línea</h3>
         <p>Simula, solicita y recibe respuesta rápida.</p>
       </div>
     </li>
     <li class="beneficio">
-      <bq-icono nombre="escudo-check" [tamano]="34" [grosor]="1.5" />
+      <bq-icono nombre="escudo-check" [tamano]="34" />
       <div>
         <h3>Condiciones claras</h3>
         <p>Conoce el costo total antes de solicitar.</p>
@@ -183,10 +189,15 @@
 </div>
 
 @if (mostrarTabla() && resultado(); as simulacion) {
-  <section class="bq-banda bq-animar tabla" id="tabla-amortizacion">
+  <section
+    class="bq-banda bq-animar tabla"
+    id="tabla-amortizacion"
+    aria-labelledby="titulo-tabla-amortizacion"
+    [bqEnfocar]="mostrarTabla() ? aperturasTabla() : 0"
+  >
     <div class="bq-contenedor">
       <div class="bq-seccion__cabecera">
-        <h2>Sus {{ simulacion.plazoMeses }} cuotas, una por una</h2>
+        <h2 id="titulo-tabla-amortizacion">Sus {{ simulacion.plazoMeses }} cuotas, una por una</h2>
         <p>Cada cuota con su capital, interés y seguro. La última ajusta los centavos del redondeo.</p>
       </div>
       <div class="bq-tabla-envoltura">
@@ -205,8 +216,8 @@
               <th scope="col" class="bq-num">Saldo</th>
             </tr>
           </thead>
-          <tbody>
-            @for (cuota of simulacion.tabla; track cuota.numero) {
+          <tbody class="bq-animar-lista">
+            @for (cuota of simulacion.tabla; track simulaciones() + '-' + cuota.numero) {
               <tr>
                 <th scope="row">{{ cuota.numero }}</th>
                 <td>{{ cuota.fechaVencimiento | fecha }}</td>

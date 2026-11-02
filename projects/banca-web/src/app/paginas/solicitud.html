@@ -1,6 +1,6 @@
 <div class="bq-pagina bq-angosto bq-pila bq-animar">
   @if (respuesta(); as resultado) {
-    <section class="bq-tarjeta bq-animar" aria-live="polite">
+    <section class="bq-tarjeta bq-animar" aria-live="polite" [bqEnfocar]="resultado">
       @if (resultado.estado === 'REGISTRADA') {
         <div class="bq-aviso bq-aviso--exito">
           <bq-icono nombre="verificado" />
@@ -74,32 +74,41 @@
               id="identificacion"
               class="bq-entrada"
               formControlName="identificacion"
-              inputmode="numeric"
-              maxlength="10"
-              autocomplete="off"
               aria-describedby="ayuda-identificacion"
-              [attr.aria-invalid]="invalido('identificacion')"
             />
-            <p class="bq-campo__ayuda" id="ayuda-identificacion">10 dígitos, sin guiones</p>
-            @if (invalido('identificacion')) {
-              <p class="bq-campo__error" role="alert">
-                <bq-icono nombre="alerta" [tamano]="15" />
-                Ingrese una cédula de 10 dígitos
-              </p>
-            }
+            <p class="bq-campo__ayuda" id="ayuda-identificacion">
+              <bq-icono nombre="candado" [tamano]="12" />
+              {{ nombreCliente || 'Cliente' }}, la solicitud se registra a su nombre
+            </p>
           </div>
 
           <div class="bq-campo">
             <label class="bq-campo__etiqueta" for="cuenta">Cuenta para el desembolso</label>
-            <input
+            <select
               id="cuenta"
-              class="bq-entrada"
+              class="bq-selector"
               formControlName="numeroCuentaDesembolso"
-              inputmode="numeric"
-              maxlength="20"
-              autocomplete="off"
+              aria-describedby="ayuda-cuenta"
               [attr.aria-invalid]="invalido('numeroCuentaDesembolso')"
-            />
+              [attr.aria-busy]="cargandoCuentas()"
+            >
+              <option value="" disabled>{{ cargandoCuentas() ? 'Cargando sus cuentas…' : 'Seleccione una cuenta' }}</option>
+              @for (cuenta of cuentas(); track cuenta.numeroCuenta) {
+                <option [value]="cuenta.numeroCuenta">{{ cuenta.tipoCuenta | etiqueta }} · {{ cuenta.numeroCuenta }}</option>
+              }
+            </select>
+            <p class="bq-campo__ayuda" id="ayuda-cuenta">Solo se muestran sus cuentas activas en BanQuito</p>
+            @if (errorCuentas()) {
+              <p class="bq-campo__error" role="alert">
+                <bq-icono nombre="alerta" [tamano]="15" />
+                {{ errorCuentas() }}
+              </p>
+            } @else if (!cargandoCuentas() && !cuentas().length) {
+              <p class="bq-campo__error" role="alert">
+                <bq-icono nombre="alerta" [tamano]="15" />
+                No tiene cuentas activas para recibir el desembolso
+              </p>
+            }
             @if (invalido('numeroCuentaDesembolso')) {
               <p class="bq-campo__error" role="alert">
                 <bq-icono nombre="alerta" [tamano]="15" />
@@ -112,6 +121,13 @@
 
       <fieldset>
         <legend>El crédito</legend>
+        @if (desdeSimulacion()) {
+          <p class="nota-simulacion">
+            <bq-icono nombre="calculadora" [tamano]="14" />
+            Monto, plazo y sistema vienen de su simulación.
+            <a class="bq-enlace" routerLink="/simulador">Cambiarlos en el simulador</a>
+          </p>
+        }
         <div class="rejilla">
           <div class="bq-campo">
             <label class="bq-campo__etiqueta" for="monto">Monto solicitado</label>
@@ -120,15 +136,15 @@
               class="bq-entrada"
               type="number"
               formControlName="montoSolicitado"
-              min="500"
-              max="30000"
+              [min]="limites()?.montoMinimo ?? 500"
+              [max]="limites()?.montoMaximo ?? 30000"
               step="50"
               [attr.aria-invalid]="invalido('montoSolicitado')"
             />
             @if (invalido('montoSolicitado')) {
               <p class="bq-campo__error" role="alert">
                 <bq-icono nombre="alerta" [tamano]="15" />
-                El monto va de USD 500,00 a USD 30.000,00
+                El monto va de {{ (limites()?.montoMinimo ?? 500) | dinero }} a {{ (limites()?.montoMaximo ?? 30000) | dinero }}
               </p>
             }
           </div>
@@ -140,14 +156,14 @@
               class="bq-entrada"
               type="number"
               formControlName="plazoMes"
-              min="6"
-              max="60"
+              [min]="limites()?.plazoMinimo ?? 6"
+              [max]="limites()?.plazoMaximo ?? 60"
               [attr.aria-invalid]="invalido('plazoMes')"
             />
             @if (invalido('plazoMes')) {
               <p class="bq-campo__error" role="alert">
                 <bq-icono nombre="alerta" [tamano]="15" />
-                El plazo va de 6 a 60 meses
+                El plazo va de {{ limites()?.plazoMinimo ?? 6 }} a {{ limites()?.plazoMaximo ?? 60 }} meses
               </p>
             }
           </div>

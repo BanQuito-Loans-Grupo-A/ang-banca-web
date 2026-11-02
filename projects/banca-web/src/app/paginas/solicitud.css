@@ -48,3 +48,16 @@ legend {
   gap: var(--bq-esp-3);
   flex-wrap: wrap;
 }
+
+.nota-simulacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--bq-esp-2);
+  margin: 0 0 var(--bq-esp-4);
+  padding: var(--bq-esp-3) var(--bq-esp-4);
+  border-radius: var(--bq-radio);
+  background: var(--bq-tinte);
+  color: var(--bq-texto-suave);
+  font-size: 0.9375rem;
+}

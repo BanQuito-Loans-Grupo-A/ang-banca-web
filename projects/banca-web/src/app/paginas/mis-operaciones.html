@@ -38,8 +38,8 @@
                 <dd class="bq-dato__valor">{{ operacion.sistemaAmortizacion | etiqueta }}</dd>
               </div>
               <div class="bq-dato">
-                <dt class="bq-dato__clave">Días de mora</dt>
-                <dd class="bq-dato__valor">{{ operacion.diaMora }}</dd>
+                <dt class="bq-dato__clave">Mora</dt>
+                <dd class="bq-dato__valor">{{ operacion.diaMora > 0 ? operacion.diaMora + (operacion.diaMora === 1 ? ' día' : ' días') : 'Al día' }}</dd>
               </div>
             </dl>
             <a class="bq-boton bq-boton--secundario bq-boton--pequeno enlace" [routerLink]="['/mis-operaciones', operacion.numeroPrestamo]">

@@ -4,8 +4,10 @@ import { RouterLink } from '@angular/router';
 import {
   ApiBanquito,
   Cargando,
+  CifraAnimada,
   CondicionesSimulador,
   DineroPipe,
+  Enfocar,
   FechaPipe,
   Icono,
   Simulacion,
@@ -17,7 +19,7 @@ import {
 @Component({
   selector: 'bw-simulador',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, Icono, Cargando, DineroPipe, FechaPipe, TasaPipe],
+  imports: [ReactiveFormsModule, RouterLink, Icono, Cargando, CifraAnimada, Enfocar, DineroPipe, FechaPipe, TasaPipe],
   templateUrl: './simulador.html',
   styleUrl: './simulador.css',
 })
@@ -30,6 +32,8 @@ export class Simulador {
   protected readonly cargando = signal(false);
   protected readonly error = signal('');
   protected readonly mostrarTabla = signal(false);
+  protected readonly simulaciones = signal(0);
+  protected readonly aperturasTabla = signal(0);
 
   protected readonly limites = computed(() => {
     const datos = this.condiciones();
@@ -60,7 +64,14 @@ export class Simulador {
   });
 
   constructor() {
-    this.api.condicionesProducto().subscribe((valor) => this.condiciones.set(valor));
+    this.api.condicionesProducto().subscribe((valor) => {
+      this.condiciones.set(valor);
+      const { monto, plazoMeses } = this.formulario.controls;
+      monto.setValidators([Validators.required, Validators.min(valor.montoMinimo), Validators.max(valor.montoMaximo)]);
+      plazoMeses.setValidators([Validators.required, Validators.min(valor.plazoMinimo), Validators.max(valor.plazoMaximo)]);
+      monto.updateValueAndValidity();
+      plazoMeses.updateValueAndValidity();
+    });
     this.simular();
   }
 
@@ -74,6 +85,7 @@ export class Simulador {
     this.api.simular(this.formulario.getRawValue()).subscribe({
       next: (valor) => {
         this.resultado.set(valor);
+        this.simulaciones.update((total) => total + 1);
         this.cargando.set(false);
       },
       error: (fallo: Error) => {
@@ -90,6 +102,9 @@ export class Simulador {
 
   protected alternarTabla(): void {
     this.mostrarTabla.update((valor) => !valor);
+    if (this.mostrarTabla()) {
+      this.aperturasTabla.update((total) => total + 1);
+    }
   }
 
   protected get monto() {
