@@ -59,15 +59,6 @@ export interface EnlaceNavegacion {
           </nav>
 
           <div class="cabecera__acciones">
-            @if (fechaNegocio.estado(); as estado) {
-              <p class="fecha">
-                <bq-icono class="fecha__icono" nombre="calendario" [tamano]="24" />
-                <span class="fecha__texto">
-                  <span class="fecha__clave">Fecha de negocio</span>
-                  <span class="fecha__valor">{{ estado.fechaNegocio | fecha }}</span>
-                </span>
-              </p>
-            }
             @if (sesion.sesion(); as actual) {
               <button type="button" class="usuario" (click)="sesion.salir()">
                 <span class="usuario__nombre">{{ actual.nombre }}</span>
