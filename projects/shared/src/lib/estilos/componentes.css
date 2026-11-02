@@ -226,8 +226,11 @@
 
 .bq-entrada:disabled,
 .bq-selector:disabled {
-  color: var(--bq-texto-tenue);
+  color: var(--bq-texto-suave);
+  background-color: var(--bq-tinte);
+  border-style: dashed;
   cursor: not-allowed;
+  opacity: 1;
 }
 
 .bq-selector {
@@ -619,5 +622,74 @@
 
 .bq-tarjeta__titulo h2,
 .bq-tarjeta__titulo h3 {
+  margin: 0;
+}
+
+.bq-interruptor {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--bq-esp-3);
+  padding: var(--bq-esp-3) var(--bq-esp-4);
+  border: 1px solid var(--bq-borde);
+  border-radius: var(--bq-radio);
+  background: var(--bq-tinte);
+  cursor: pointer;
+}
+
+.bq-interruptor input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: var(--bq-marca);
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.bq-interruptor__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bq-capa {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--bq-esp-4);
+  overflow-y: auto;
+}
+
+.bq-velo {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 30, 47, 0.55);
+  animation: bq-entrada var(--bq-dur) var(--bq-salida) both;
+}
+
+.bq-modal {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: calc(100dvh - 2 * var(--bq-esp-4));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bq-esp-4);
+  padding: var(--bq-esp-5);
+  background: var(--bq-superficie);
+  border: 1px solid var(--bq-borde);
+  border-radius: var(--bq-radio-lg);
+  box-shadow: var(--bq-sombra-3);
+}
+
+.bq-modal__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bq-esp-3);
+}
+
+.bq-modal__cabecera h2 {
   margin: 0;
 }

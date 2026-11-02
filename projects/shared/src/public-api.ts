@@ -23,6 +23,8 @@ export * from './lib/ui/marco';
 export * from './lib/ui/chip-estado';
 export * from './lib/ui/cargando';
 export * from './lib/ui/vacio';
+export * from './lib/ui/enfocar';
+export * from './lib/ui/cifra-animada';
 export * from './lib/core/errores';
 export * from './lib/datos/interceptor';
 export * from './lib/core/guardia';

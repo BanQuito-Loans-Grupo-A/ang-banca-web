@@ -216,6 +216,55 @@ svg {
   }
 }
 
+@keyframes bq-resaltar {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--bq-marca) 45%, transparent);
+  }
+  60% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--bq-marca) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes bq-destello {
+  0% {
+    background-color: color-mix(in srgb, var(--bq-marca) 22%, transparent);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.bq-enfocable {
+  scroll-margin-top: calc(var(--bq-esp-6, 32px) + 64px);
+  border-radius: var(--bq-radio);
+}
+
+.bq-enfocable:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.bq-resaltar {
+  animation: bq-resaltar 1.2s var(--bq-salida) 1;
+}
+
+.bq-cifra {
+  display: inline-block;
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bq-cifra--sube,
+.bq-cifra--baja {
+  animation: bq-destello 900ms var(--bq-salida) 1;
+}
+
+.bq-destello {
+  animation: bq-destello 900ms var(--bq-salida) 1;
+}
+
 .bq-animar {
   animation: bq-entrada var(--bq-dur-lenta) var(--bq-salida) both;
 }

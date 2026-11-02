@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { ICONOS, NombreIcono } from './iconos';
 
 @Component({
@@ -8,18 +8,16 @@ import { ICONOS, NombreIcono } from './iconos';
     <svg
       [attr.width]="tamano()"
       [attr.height]="tamano()"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      [attr.stroke-width]="grosor()"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      [attr.viewBox]="caja()"
+      fill="currentColor"
       [attr.aria-hidden]="etiqueta() ? null : 'true'"
       [attr.role]="etiqueta() ? 'img' : null"
       [attr.aria-label]="etiqueta() || null"
       focusable="false"
     >
-      <path [attr.d]="trazo()" />
+      @for (trazo of trazos(); track $index) {
+        <path [attr.d]="trazo" />
+      }
     </svg>
   `,
   styles: `
@@ -33,10 +31,12 @@ import { ICONOS, NombreIcono } from './iconos';
 export class Icono {
   readonly nombre = input.required<NombreIcono>();
   readonly tamano = input(20);
-  readonly grosor = input(1.8);
   readonly etiqueta = input('');
 
-  protected trazo(): string {
-    return ICONOS[this.nombre()];
-  }
+  private readonly definicion = computed(() => ICONOS[this.nombre()].icon);
+  protected readonly caja = computed(() => `0 0 ${this.definicion()[0]} ${this.definicion()[1]}`);
+  protected readonly trazos = computed(() => {
+    const datos = this.definicion()[4];
+    return Array.isArray(datos) ? datos : [datos];
+  });
 }
