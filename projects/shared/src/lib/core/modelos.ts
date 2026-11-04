@@ -515,3 +515,17 @@ export interface DatosTramo {
   acumulaMora: boolean;
   porcentajeProvision: number;
 }
+
+export type EstadoArchivoRecaudacion = 'EN_PROCESO' | 'PROCESADO' | 'RECHAZADO';
+
+export interface ArchivoRecaudacion {
+  id: number;
+  nombreArchivo: string;
+  fechaProceso: string;
+  estado: EstadoArchivoRecaudacion;
+  codigoRechazo: string | null;
+  totalRegistros: number | null;
+  montoTotal: number | null;
+  hashSha256: string | null;
+  nombreArchivoNovedad: string | null;
+}

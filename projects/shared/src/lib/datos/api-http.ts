@@ -11,7 +11,7 @@ import {
   ReporteMorosidad, ReporteRollRate, ReporteSaludPortafolio, ResolucionRespuesta, ResumenAbono,
   Simulacion, SolicitudAbono, SolicitudBandeja, SolicitudCliente, SolicitudDetalle,
   SolicitudRegistrada, SolicitudSimulacion, TramoCartera, ClienteIdentificado, AnalistaIdentificado,
-  CuentaCliente, DatosTramo, NuevoValorParametro,
+  CuentaCliente, DatosTramo, NuevoValorParametro, ArchivoRecaudacion,
 } from '../core/modelos';
 
 @Injectable()
@@ -214,5 +214,13 @@ export class ApiHttp extends ApiBanquito {
     return this.http.get<ReporteRollRate>(this.url('/reportes/roll-rate'), {
       params: { fechaInicial, fechaFinal },
     });
+  }
+
+  archivosRecaudacion(fecha: string): Observable<ArchivoRecaudacion[]> {
+    return this.http.get<ArchivoRecaudacion[]>(this.url('/recaudaciones/archivos'), { params: { fecha } });
+  }
+
+  archivoNovedades(idArchivo: number): Observable<Blob> {
+    return this.http.get(this.url(`/recaudaciones/archivos/${idArchivo}/novedades`), { responseType: 'blob' });
   }
 }

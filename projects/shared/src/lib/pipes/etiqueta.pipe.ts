@@ -20,6 +20,8 @@ const ETIQUETAS: Record<string, string> = {
   FALLIDO: 'Fallido',
   CERRADO: 'Cerrado',
   EN_PROCESO: 'En proceso',
+  PROCESADO: 'Procesado',
+  RECHAZADO: 'Rechazado',
   EXITOSA: 'Exitosa',
   FALLIDA: 'Fallida',
   FRANCES: 'Francés',

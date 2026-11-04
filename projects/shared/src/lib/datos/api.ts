@@ -7,7 +7,7 @@ import {
   ResolucionRespuesta, ResumenAbono, Simulacion, SolicitudAbono, SolicitudBandeja, SolicitudCliente,
   SolicitudDetalle, SolicitudRegistrada, SolicitudSimulacion, TramoCartera,
   RegistroSolicitud, AprobacionSolicitud, RechazoSolicitud, DesembolsoSolicitud,
-  ClienteIdentificado, AnalistaIdentificado, CuentaCliente, DatosTramo, NuevoValorParametro,
+  ClienteIdentificado, AnalistaIdentificado, CuentaCliente, DatosTramo, NuevoValorParametro, ArchivoRecaudacion,
 } from '../core/modelos';
 
 export abstract class ApiBanquito {
@@ -58,4 +58,6 @@ export abstract class ApiBanquito {
   abstract reporteComposicion(fechaCorte: string): Observable<ReporteComposicionTramos>;
   abstract reporteSalud(fechaCorte: string): Observable<ReporteSaludPortafolio>;
   abstract reporteRollRate(fechaInicial: string, fechaFinal: string): Observable<ReporteRollRate>;
+  abstract archivosRecaudacion(fecha: string): Observable<ArchivoRecaudacion[]>;
+  abstract archivoNovedades(idArchivo: number): Observable<Blob>;
 }

@@ -14,7 +14,7 @@ import {
   ReporteMorosidad, ReporteRollRate, ReporteSaludPortafolio, ResolucionRespuesta, ResumenAbono,
   Simulacion, SolicitudAbono, SolicitudBandeja, SolicitudCliente, SolicitudDetalle,
   SolicitudRegistrada, SolicitudSimulacion, TramoCartera, ClienteIdentificado, AnalistaIdentificado,
-  CuentaCliente, DatosTramo, NuevoValorParametro,
+  CuentaCliente, DatosTramo, NuevoValorParametro, ArchivoRecaudacion,
 } from '../core/modelos';
 
 const RETARDO = 260;
@@ -711,5 +711,20 @@ export class ApiMock extends ApiBanquito {
         { tramoInicial: 4, operaciones: 10, saldoInicial: 61300, destinos: [{ destino: 'TRAMO_4', evolucion: 'SE_MANTUVO', operaciones: 1, saldoInicial: 44300, porcentajeSaldo: 72.27 }, { destino: 'TRAMO_5', evolucion: 'EMPEORO', operaciones: 1, saldoInicial: 17000, porcentajeSaldo: 27.73 }] },
       ],
     });
+  }
+
+  archivosRecaudacion(fecha: string): Observable<ArchivoRecaudacion[]> {
+    const compacta = fecha.replace(/-/g, '');
+    return responder([
+      { id: 1, nombreArchivo: `REC_${compacta}_001.csv`, fechaProceso: fecha, estado: 'PROCESADO', codigoRechazo: null, totalRegistros: 300, montoTotal: 98750.4, hashSha256: null, nombreArchivoNovedad: `NOV_REC_${compacta}_001.csv` },
+      { id: 2, nombreArchivo: `REC_${compacta}_002.csv`, fechaProceso: fecha, estado: 'RECHAZADO', codigoRechazo: 'ARC-005', totalRegistros: 12, montoTotal: 4120, hashSha256: null, nombreArchivoNovedad: `NOV_REC_${compacta}_002.csv` },
+    ]);
+  }
+
+  archivoNovedades(idArchivo: number): Observable<Blob> {
+    const contenido = idArchivo === 2
+      ? 'H,REC_20261031_002,2026-10-31,RECHAZADO,ARC-005\n'
+      : 'H,REC_20261031_001,2026-10-31,PROCESADO,\nD,1,8f2c1a,PR-000001,APLICADO,,,911.44,6.00,0.00,130.03,775.41,0.00,0.00\nT,1,1,0,0,911.44,0.00\n';
+    return responder(new Blob([contenido], { type: 'text/csv;charset=utf-8' }));
   }
 }

@@ -9,6 +9,7 @@ const TONOS: Record<string, string> = {
   EXITOSA: 'exito',
   APROBADA: 'exito',
   APLICADA: 'exito',
+  PROCESADO: 'exito',
   VENCIDA: 'alerta',
   PAGO_PARCIAL: 'alerta',
   EN_CIERRE: 'alerta',
@@ -21,6 +22,7 @@ const TONOS: Record<string, string> = {
   RECHAZADA: 'error',
   FALLIDO: 'error',
   FALLIDA: 'error',
+  RECHAZADO: 'error',
 };
 
 @Component({
