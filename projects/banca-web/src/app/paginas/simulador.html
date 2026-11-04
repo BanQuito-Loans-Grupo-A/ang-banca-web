@@ -105,7 +105,7 @@
       } @else if (resultado(); as simulacion) {
         <div class="bq-animar">
           <p class="resultado__titulo">
-            {{ simulacion.sistemaAmortizacion === 'ALEMAN' ? 'Tu primera cuota estimada' : 'Tu cuota mensual estimada' }}
+            {{ simulacion.sistemaAmortizacion === 'ALEMAN' ? 'Su primera cuota estimada' : 'Su cuota mensual estimada' }}
           </p>
           <p class="cifra"><bq-cifra [valor]="simulacion.cuotaPrimera" /></p>
           <p class="resultado__nota">
@@ -122,7 +122,7 @@
           <dl class="panel">
             <div class="panel__dato">
               <bq-icono nombre="billetera" [tamano]="26" />
-              <dt>Recibes en tu cuenta</dt>
+              <dt>Recibe en su cuenta</dt>
               <dd><bq-cifra [valor]="simulacion.montoNeto" /></dd>
             </div>
             <div class="panel__dato">
@@ -178,14 +178,14 @@
       <bq-icono nombre="rayo" [tamano]="34" />
       <div>
         <h3>Proceso 100% en línea</h3>
-        <p>Simula, solicita y recibe respuesta rápida.</p>
+        <p>Simule, solicite y reciba respuesta rápida.</p>
       </div>
     </li>
     <li class="beneficio">
       <bq-icono nombre="escudo-check" [tamano]="34" />
       <div>
         <h3>Condiciones claras</h3>
-        <p>Conoce el costo total antes de solicitar.</p>
+        <p>Conozca el costo total antes de solicitar.</p>
       </div>
     </li>
   </ul>
@@ -201,7 +201,7 @@
     <div class="bq-contenedor">
       <div class="bq-seccion__cabecera">
         <h2 id="titulo-tabla-amortizacion">Sus {{ simulacion.plazoMeses }} cuotas, una por una</h2>
-        <p>Cada cuota con su capital, interés y seguro. La última ajusta los centavos del redondeo.</p>
+        <p>Cada cuota con su capital, interés y seguro. La última cuota puede variar por unos centavos.</p>
       </div>
       <div class="bq-tabla-envoltura">
         <table class="bq-tabla">

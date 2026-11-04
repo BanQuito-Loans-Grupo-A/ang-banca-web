@@ -2,11 +2,16 @@
   <header>
     <hr class="bq-regla" />
     <h1>Mis solicitudes</h1>
-    <p class="bq-suave" id="intro">Consulte el estado de cada solicitud y, si fue rechazada, el motivo.</p>
+    <p class="bq-suave" id="intro">Revise en qué estado está cada una de sus solicitudes de crédito.</p>
   </header>
 
   <section aria-live="polite">
-    @if (cargando()) {
+    @if (error() && !cargando()) {
+      <div class="bq-aviso bq-aviso--error" role="alert">
+        <bq-icono nombre="alerta" />
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (cargando()) {
       <div class="bq-tarjeta bq-tarjeta--contorno"><bq-cargando mensaje="Buscando sus solicitudes" [filas]="4" /></div>
     } @else if (solicitudes().length) {
       <ul class="lista bq-animar-lista">
@@ -47,7 +52,7 @@
             @if (solicitud.motivoRechazo) {
               <p class="bq-aviso bq-aviso--error motivo">
                 <bq-icono nombre="alerta" [tamano]="18" />
-                {{ solicitud.motivoRechazo }}
+                {{ motivo(solicitud.motivoRechazo) }}
               </p>
             }
           </li>
@@ -55,8 +60,8 @@
       </ul>
     } @else if (consultado()) {
       <bq-vacio
-        titulo="No encontramos solicitudes"
-        detalle="Verifique la cédula ingresada o registre una nueva solicitud desde el simulador."
+        titulo="Todavía no tiene solicitudes"
+        detalle="Cuando solicite un crédito, aquí podrá seguir su estado."
         icono="documento"
       />
     }

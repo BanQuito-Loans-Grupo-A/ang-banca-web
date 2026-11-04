@@ -16,6 +16,7 @@ import {
   TasaPipe,
   sumar,
 } from 'shared';
+import { mensajeCliente, plazosDisponibles } from '../mensajes';
 
 @Component({
   selector: 'bw-simulador',
@@ -46,17 +47,7 @@ export class Simulador {
     };
   });
 
-  protected readonly plazos = computed(() => {
-    const { plazoMinimo, plazoMaximo } = this.limites();
-    const opciones: number[] = [];
-    for (let meses = plazoMinimo; meses <= plazoMaximo; meses += 6) {
-      opciones.push(meses);
-    }
-    if (opciones[opciones.length - 1] !== plazoMaximo) {
-      opciones.push(plazoMaximo);
-    }
-    return opciones;
-  });
+  protected readonly plazos = computed(() => plazosDisponibles(this.limites().plazoMinimo, this.limites().plazoMaximo));
 
   protected readonly formulario = this.fb.nonNullable.group({
     monto: [10000, [Validators.required, Validators.min(500), Validators.max(30000)]],
@@ -89,8 +80,8 @@ export class Simulador {
         this.simulaciones.update((total) => total + 1);
         this.cargando.set(false);
       },
-      error: (fallo: Error) => {
-        this.error.set(fallo.message || 'No fue posible calcular la simulación');
+      error: (fallo: unknown) => {
+        this.error.set(mensajeCliente(fallo, 'No pudimos calcular su simulación. Intente de nuevo en unos minutos.'));
         this.resultado.set(null);
         this.cargando.set(false);
       },

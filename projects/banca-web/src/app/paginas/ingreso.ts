@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ApiBanquito, Icono, PantallaIngreso, SesionService, SoloDigitos, mensajeDe } from 'shared';
+import { ApiBanquito, ErrorBanquito, Icono, PantallaIngreso, SesionService, SoloDigitos } from 'shared';
+import { mensajeCliente } from '../mensajes';
 
 @Component({
   selector: 'bw-ingreso',
@@ -11,7 +12,7 @@ import { ApiBanquito, Icono, PantallaIngreso, SesionService, SoloDigitos, mensaj
     <bq-pantalla-ingreso
       titulo="Bienvenido a BanQuito"
       descripcion="Simule, solicite y siga su préstamo de consumo de forma segura y 100% en línea."
-      tituloFormulario="Ingresa a tu Banca Web"
+      tituloFormulario="Ingrese a su Banca Web"
     >
       <form class="formulario" [formGroup]="formulario" (ngSubmit)="ingresar()" novalidate>
         @if (error()) {
@@ -34,17 +35,17 @@ import { ApiBanquito, Icono, PantallaIngreso, SesionService, SoloDigitos, mensaj
             inputmode="numeric"
             maxlength="10"
             autocomplete="username"
-            placeholder="Ingresa tu número de cédula"
+            placeholder="Ingrese su número de cédula"
             aria-describedby="ayuda"
             [attr.aria-invalid]="control.touched && control.invalid"
           />
           <p class="bq-campo__ayuda" id="ayuda">
-            10 dígitos, sin guiones. No pedimos contraseña: solo verás tus solicitudes y préstamos.
+            Los 10 dígitos de su cédula, sin guiones.
           </p>
           @if (control.touched && control.invalid) {
             <p class="bq-campo__error" role="alert">
               <bq-icono nombre="alerta" [tamano]="15" />
-              Ingresa una cédula de 10 dígitos
+              Ingrese una cédula de 10 dígitos
             </p>
           }
         </div>
@@ -53,11 +54,11 @@ import { ApiBanquito, Icono, PantallaIngreso, SesionService, SoloDigitos, mensaj
           {{ verificando() ? 'Verificando…' : 'Ingresar' }}
         </button>
 
-        <p class="bq-separador">¿Aún no tienes un crédito?</p>
+        <p class="bq-separador">¿Aún no tiene un crédito?</p>
 
         <a class="bq-boton bq-boton--contorno bq-boton--bloque" routerLink="/simulador">
           <bq-icono nombre="calculadora" [tamano]="20" />
-          Simula tu crédito
+          Simule su crédito
         </a>
       </form>
     </bq-pantalla-ingreso>
@@ -107,7 +108,9 @@ export class Ingreso {
         this.router.navigate(['/mis-operaciones']);
       },
       error: (fallo) => {
-        this.error.set(mensajeDe(fallo, 'No encontramos esa cédula en nuestros registros'));
+        this.error.set(fallo instanceof ErrorBanquito && fallo.estado === 404
+          ? 'No encontramos un cliente con esa cédula. Revise el número e intente de nuevo.'
+          : mensajeCliente(fallo, 'No pudimos verificar su cédula. Intente de nuevo en unos minutos.'));
         this.verificando.set(false);
       },
     });

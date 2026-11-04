@@ -4,6 +4,7 @@ import {
   ApiBanquito, Cargando, ChipEstado, DineroPipe, EtiquetaPipe, FechaPipe, Icono, OperacionCliente,
   SesionService, Vacio,
 } from 'shared';
+import { mensajeCliente } from '../mensajes';
 
 @Component({
   selector: 'bw-mis-operaciones',
@@ -19,6 +20,7 @@ export class MisOperaciones {
   protected readonly operaciones = signal<OperacionCliente[]>([]);
   protected readonly cargando = signal(false);
   protected readonly consultado = signal(false);
+  protected readonly error = signal('');
 
 
   protected identificacion(): string {
@@ -37,7 +39,8 @@ export class MisOperaciones {
         this.cargando.set(false);
         this.consultado.set(true);
       },
-      error: () => {
+      error: (fallo: unknown) => {
+        this.error.set(mensajeCliente(fallo, 'No pudimos mostrar sus préstamos en este momento. Intente de nuevo en unos minutos.'));
         this.operaciones.set([]);
         this.cargando.set(false);
         this.consultado.set(true);

@@ -33,7 +33,7 @@
         <p class="bq-dato__valor bq-dato__valor--grande">{{ detalle.diaMora }}</p>
       </div>
       <div class="bq-tarjeta bq-tarjeta--contorno">
-        <p class="bq-dato__clave">Interés devengado acumulado</p>
+        <p class="bq-dato__clave">Intereses generados a la fecha</p>
         <p class="bq-dato__valor bq-dato__valor--grande">{{ detalle.interesDevengadoAcumulado | dinero }}</p>
       </div>
     </div>
@@ -160,7 +160,7 @@
             </table>
           </div>
         } @else {
-          <bq-vacio titulo="Todavía no hay pagos aplicados" icono="dinero" />
+          <bq-vacio titulo="Todavía no registra pagos" icono="dinero" />
         }
       </div>
     }
@@ -194,7 +194,7 @@
             </table>
           </div>
         } @else {
-          <bq-vacio titulo="Esta operación no registra cargos de mora" icono="verificado" />
+          <bq-vacio titulo="Este préstamo no tiene recargos por atraso" icono="verificado" />
         }
       </div>
     }

@@ -1,13 +1,19 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   ApiBanquito, CondicionesSimulador, CuentaCliente, DestinoCredito, DineroPipe, Enfocar, EtiquetaPipe, Icono, Rango, SesionService,
-  SistemaAmortizacion, SolicitudRegistrada, TasaPipe, mensajeDe,
+  SistemaAmortizacion, SolicitudRegistrada, TasaPipe,
 } from 'shared';
+import { mensajeCliente, motivoParaCliente, plazosDisponibles } from '../mensajes';
 
 const SISTEMAS: SistemaAmortizacion[] = ['FRANCES', 'ALEMAN'];
 const MAXIMO_MENSUAL = 999999.99;
+
+function multiploDeSeis(control: AbstractControl): ValidationErrors | null {
+  const valor = Number(control.value);
+  return Number.isInteger(valor) && valor % 6 === 0 ? null : { multiploDeSeis: true };
+}
 
 @Component({
   selector: 'bw-solicitud',
@@ -28,8 +34,9 @@ export class Solicitud {
   protected readonly cuentas = signal<CuentaCliente[]>([]);
   protected readonly cargandoCuentas = signal(true);
   protected readonly errorCuentas = signal('');
-  protected readonly desdeSimulacion = signal(false);
   protected readonly limites = signal<CondicionesSimulador | null>(null);
+  protected readonly plazos = computed(() => plazosDisponibles(this.limites()?.plazoMinimo ?? 6, this.limites()?.plazoMaximo ?? 60));
+  protected readonly motivo = motivoParaCliente;
 
   protected readonly destinos: DestinoCredito[] = ['BIENES_DURADEROS', 'SALUD', 'EDUCACION', 'VIAJE', 'OTRO'];
   protected readonly identificacion = this.sesion.sesion()?.identificacion ?? '';
@@ -41,7 +48,7 @@ export class Solicitud {
     identificacion: [{ value: this.identificacion, disabled: true }, [Validators.required, Validators.pattern(/^\d{10}$/)]],
     numeroCuentaDesembolso: ['', [Validators.required, Validators.maxLength(20)]],
     montoSolicitado: [10000, [Validators.required, Validators.min(500), Validators.max(30000)]],
-    plazoMes: [12, [Validators.required, Validators.min(6), Validators.max(60)]],
+    plazoMes: [12, [Validators.required, Validators.min(6), Validators.max(60), multiploDeSeis]],
     sistemaAmortizacion: ['FRANCES' as SistemaAmortizacion, Validators.required],
     destino: ['BIENES_DURADEROS' as DestinoCredito, Validators.required],
     ingresoMensual: [3500, [Validators.required, Validators.min(0), Validators.max(MAXIMO_MENSUAL)]],
@@ -58,7 +65,10 @@ export class Solicitud {
     this.limites.set(condiciones);
     const { montoSolicitado, plazoMes } = this.formulario.controls;
     montoSolicitado.setValidators([Validators.required, Validators.min(condiciones.montoMinimo), Validators.max(condiciones.montoMaximo)]);
-    plazoMes.setValidators([Validators.required, Validators.min(condiciones.plazoMinimo), Validators.max(condiciones.plazoMaximo)]);
+    plazoMes.setValidators([Validators.required, Validators.min(condiciones.plazoMinimo), Validators.max(condiciones.plazoMaximo), multiploDeSeis]);
+    if (plazoMes.value && !this.plazos().includes(plazoMes.value)) {
+      plazoMes.setValue(this.plazos().includes(12) ? 12 : this.plazos()[0]);
+    }
     montoSolicitado.updateValueAndValidity();
     plazoMes.updateValueAndValidity();
   }
@@ -73,15 +83,10 @@ export class Solicitud {
     }
     const { montoSolicitado, plazoMes, sistemaAmortizacion } = this.formulario.controls;
     montoSolicitado.setValue(monto);
-    plazoMes.setValue(plazo);
-    sistemaAmortizacion.setValue(sistema);
-    if (montoSolicitado.invalid || plazoMes.invalid) {
-      return;
+    if (plazo % 6 === 0) {
+      plazoMes.setValue(plazo);
     }
-    montoSolicitado.disable();
-    plazoMes.disable();
-    sistemaAmortizacion.disable();
-    this.desdeSimulacion.set(true);
+    sistemaAmortizacion.setValue(sistema);
   }
 
   private cargarCuentas(): void {
@@ -98,7 +103,7 @@ export class Solicitud {
         this.cargandoCuentas.set(false);
       },
       error: (fallo) => {
-        this.errorCuentas.set(mensajeDe(fallo, 'No fue posible consultar sus cuentas'));
+        this.errorCuentas.set(mensajeCliente(fallo, 'No pudimos mostrar sus cuentas en este momento. Intente de nuevo en unos minutos.'));
         this.cargandoCuentas.set(false);
       },
     });
@@ -116,8 +121,8 @@ export class Solicitud {
         this.respuesta.set(valor);
         this.enviando.set(false);
       },
-      error: (fallo: Error) => {
-        this.error.set(fallo.message || 'No fue posible registrar la solicitud');
+      error: (fallo: unknown) => {
+        this.error.set(mensajeCliente(fallo, 'No pudimos registrar su solicitud. Intente de nuevo en unos minutos.'));
         this.enviando.set(false);
       },
     });

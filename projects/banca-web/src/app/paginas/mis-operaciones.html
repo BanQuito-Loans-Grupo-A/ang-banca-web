@@ -6,7 +6,12 @@
   </header>
 
   <section aria-live="polite">
-    @if (cargando()) {
+    @if (error() && !cargando()) {
+      <div class="bq-aviso bq-aviso--error" role="alert">
+        <bq-icono nombre="alerta" />
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (cargando()) {
       <div class="bq-tarjeta bq-tarjeta--contorno"><bq-cargando mensaje="Buscando sus préstamos" [filas]="4" /></div>
     } @else if (operaciones().length) {
       <ul class="lista bq-animar-lista">
@@ -51,8 +56,8 @@
       </ul>
     } @else if (consultado()) {
       <bq-vacio
-        titulo="No encontramos préstamos"
-        detalle="Verifique la cédula ingresada. Si aún no tiene un crédito, puede simular uno desde el simulador."
+        titulo="Todavía no tiene préstamos"
+        detalle="Cuando reciba un crédito, aquí verá su saldo, sus cuotas y sus pagos."
         icono="cartera"
       />
     }

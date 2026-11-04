@@ -4,6 +4,7 @@ import {
   ApiBanquito, Cargando, CargoMoraCuota, ChipEstado, CuotaTabla, DineroPipe, EtiquetaPipe, FechaPipe,
   Icono, OperacionDetalle, PagoAplicado, TasaPipe, Vacio,
 } from 'shared';
+import { mensajeCliente } from '../mensajes';
 
 type Pestana = 'tabla' | 'pagos' | 'mora';
 
@@ -47,8 +48,8 @@ export class OperacionDetallePagina {
         this.operacion.set(valor);
         this.cargando.set(false);
       },
-      error: (fallo: Error) => {
-        this.error.set(fallo.message || 'No fue posible cargar la operación');
+      error: (fallo: unknown) => {
+        this.error.set(mensajeCliente(fallo, 'No pudimos mostrar este préstamo. Intente de nuevo en unos minutos.'));
         this.cargando.set(false);
       },
     });

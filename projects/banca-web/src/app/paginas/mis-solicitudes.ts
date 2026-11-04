@@ -3,6 +3,7 @@ import {
   ApiBanquito, Cargando, ChipEstado, DineroPipe, EtiquetaPipe, FechaPipe, Icono, SesionService,
   SolicitudCliente, TasaPipe, Vacio,
 } from 'shared';
+import { mensajeCliente, motivoParaCliente } from '../mensajes';
 
 @Component({
   selector: 'bw-mis-solicitudes',
@@ -18,6 +19,8 @@ export class MisSolicitudes {
   protected readonly solicitudes = signal<SolicitudCliente[]>([]);
   protected readonly cargando = signal(false);
   protected readonly consultado = signal(false);
+  protected readonly error = signal('');
+  protected readonly motivo = motivoParaCliente;
 
 
   protected identificacion(): string {
@@ -36,7 +39,8 @@ export class MisSolicitudes {
         this.cargando.set(false);
         this.consultado.set(true);
       },
-      error: () => {
+      error: (fallo: unknown) => {
+        this.error.set(mensajeCliente(fallo, 'No pudimos mostrar sus solicitudes en este momento. Intente de nuevo en unos minutos.'));
         this.solicitudes.set([]);
         this.cargando.set(false);
         this.consultado.set(true);

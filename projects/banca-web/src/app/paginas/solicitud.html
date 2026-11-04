@@ -17,7 +17,7 @@
           <bq-icono nombre="alerta" />
           <div>
             <h1>Su solicitud no cumple la evaluación</h1>
-            <p>{{ resultado.motivoRechazo }}</p>
+            <p>{{ motivo(resultado.motivoRechazo) }}</p>
           </div>
         </div>
       }
@@ -121,13 +121,6 @@
 
       <fieldset>
         <legend>El crédito</legend>
-        @if (desdeSimulacion()) {
-          <p class="nota-simulacion">
-            <bq-icono nombre="calculadora" [tamano]="14" />
-            Monto, plazo y sistema vienen de su simulación.
-            <a class="bq-enlace" routerLink="/simulador">Cambiarlos en el simulador</a>
-          </p>
-        }
         <div class="rejilla">
           <div class="bq-campo">
             <label class="bq-campo__etiqueta" for="monto">Monto solicitado</label>
@@ -154,23 +147,22 @@
 
           <div class="bq-campo">
             <label class="bq-campo__etiqueta" for="plazo">Plazo en meses</label>
-            <input
+            <select
               id="plazo"
-              class="bq-entrada"
-              type="number"
+              class="bq-selector"
               formControlName="plazoMes"
-              bqRango
-              [bqMax]="limites()?.plazoMaximo ?? 60"
-              [bqDecimales]="0"
-              step="1"
-              [min]="limites()?.plazoMinimo ?? 6"
-              [max]="limites()?.plazoMaximo ?? 60"
+              aria-describedby="ayuda-plazo"
               [attr.aria-invalid]="invalido('plazoMes')"
-            />
+            >
+              @for (meses of plazos(); track meses) {
+                <option [ngValue]="meses">{{ meses }} meses</option>
+              }
+            </select>
+            <p class="bq-campo__ayuda" id="ayuda-plazo">De {{ plazos()[0] }} a {{ plazos()[plazos().length - 1] }} meses, en múltiplos de 6</p>
             @if (invalido('plazoMes')) {
               <p class="bq-campo__error" role="alert">
                 <bq-icono nombre="alerta" [tamano]="15" />
-                El plazo va de {{ limites()?.plazoMinimo ?? 6 }} a {{ limites()?.plazoMaximo ?? 60 }} meses
+                Elija uno de los plazos de la lista
               </p>
             }
           </div>
