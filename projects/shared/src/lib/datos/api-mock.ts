@@ -8,7 +8,7 @@ import { sumarDias, sumarMeses } from '../core/fechas';
 import { ErrorBanquito } from '../core/errores';
 import {
   AbonoRegistrado, AprobacionSolicitud, CancelacionRegistrada, CargoMoraCuota, CierreRespuesta,
-  CondicionesSimulador, CuadroAbono, CuotaTabla, DesembolsoSolicitud, EtapaCierreRespuesta,
+  CondicionesSimulador, CuadroAbono, CuotaTabla, DesembolsoSolicitud, EtapaCierreRespuesta, ProgramacionCierre,
   FechaNegocio, Liquidacion, MovimientoEstado, OperacionCliente, OperacionDetalle, OperacionResumen,
   Pagina, PagoAplicado, Parametro, RechazoSolicitud, RegistroSolicitud, ReporteComposicionTramos,
   ReporteMorosidad, ReporteRollRate, ReporteSaludPortafolio, ResolucionRespuesta, ResumenAbono,
@@ -538,6 +538,10 @@ export class ApiMock extends ApiBanquito {
     return encontrado
       ? responder(encontrado)
       : throwError(() => new ErrorBanquito('No hay cierre para esa fecha', 'RECURSO_NO_ENCONTRADO', 404));
+  }
+
+  programacionCierre(): Observable<ProgramacionCierre> {
+    return of({ cron: '0 0 23 * * *', activa: false }).pipe(delay(150));
   }
 
   etapasCierre(fecha: string): Observable<EtapaCierreRespuesta[]> {

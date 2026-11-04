@@ -5,7 +5,7 @@ import { ApiBanquito } from './api';
 import { BASE_API } from './configuracion';
 import {
   AbonoRegistrado, AprobacionSolicitud, CancelacionRegistrada, CargoMoraCuota, CierreRespuesta,
-  CondicionesSimulador, CuadroAbono, CuotaTabla, DesembolsoSolicitud, EtapaCierreRespuesta,
+  CondicionesSimulador, CuadroAbono, CuotaTabla, DesembolsoSolicitud, EtapaCierreRespuesta, ProgramacionCierre,
   FechaNegocio, Liquidacion, MovimientoEstado, OperacionCliente, OperacionDetalle, OperacionResumen,
   Pagina, PagoAplicado, Parametro, RechazoSolicitud, RegistroSolicitud, ReporteComposicionTramos,
   ReporteMorosidad, ReporteRollRate, ReporteSaludPortafolio, ResolucionRespuesta, ResumenAbono,
@@ -172,6 +172,10 @@ export class ApiHttp extends ApiBanquito {
 
   etapasCierre(fecha: string): Observable<EtapaCierreRespuesta[]> {
     return this.http.get<EtapaCierreRespuesta[]>(this.url(`/cierres/${fecha}/etapas`));
+  }
+
+  programacionCierre(): Observable<ProgramacionCierre> {
+    return this.http.get<ProgramacionCierre>(this.url('/cierres/programacion'));
   }
 
   parametros(): Observable<Parametro[]> {

@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import {
   AbonoRegistrado, CancelacionRegistrada, CargoMoraCuota, CierreRespuesta, CondicionesSimulador,
-  CuadroAbono, CuotaTabla, EtapaCierreRespuesta, FechaNegocio, Liquidacion, MovimientoEstado,
+  CuadroAbono, CuotaTabla, EtapaCierreRespuesta, ProgramacionCierre, FechaNegocio, Liquidacion, MovimientoEstado,
   OperacionCliente, OperacionDetalle, OperacionResumen, Pagina, PagoAplicado, Parametro,
   ReporteComposicionTramos, ReporteMorosidad, ReporteRollRate, ReporteSaludPortafolio,
   ResolucionRespuesta, ResumenAbono, Simulacion, SolicitudAbono, SolicitudBandeja, SolicitudCliente,
@@ -46,6 +46,7 @@ export abstract class ApiBanquito {
   abstract listarCierres(desde?: string, hasta?: string): Observable<CierreRespuesta[]>;
   abstract detalleCierre(fecha: string): Observable<CierreRespuesta>;
   abstract etapasCierre(fecha: string): Observable<EtapaCierreRespuesta[]>;
+  abstract programacionCierre(): Observable<ProgramacionCierre>;
 
   abstract parametros(): Observable<Parametro[]>;
   abstract parametrosProgramados(): Observable<Parametro[]>;

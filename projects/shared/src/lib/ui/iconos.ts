@@ -10,6 +10,7 @@ import {
   faCalendarDays,
   faChartLine,
   faCheck,
+  faDownload,
   faChevronRight,
   faCircleCheck,
   faCircleInfo,
@@ -79,6 +80,7 @@ export const ICONOS = {
   tabla: faTableList,
   pago: faHandHoldingDollar,
   info: faCircleInfo,
+  descarga: faDownload,
 } satisfies Record<string, IconDefinition>;
 
 export type NombreIcono = keyof typeof ICONOS;
