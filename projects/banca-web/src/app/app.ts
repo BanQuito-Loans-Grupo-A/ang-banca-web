@@ -13,6 +13,7 @@ export class App {
   protected readonly enlaces: EnlaceNavegacion[] = [
     { ruta: '/simulador', texto: 'Simulador', icono: 'calculadora' },
     { ruta: '/solicitud', texto: 'Solicitar crédito', icono: 'documento' },
+    { ruta: '/mis-cuentas', texto: 'Mis cuentas', icono: 'billetera' },
     { ruta: '/mis-solicitudes', texto: 'Mis solicitudes', icono: 'capas' },
     { ruta: '/mis-operaciones', texto: 'Mis préstamos', icono: 'cartera' },
   ];

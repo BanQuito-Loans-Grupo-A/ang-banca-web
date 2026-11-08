@@ -105,7 +105,7 @@ export class Ingreso {
           idAnalista: 0,
         });
         this.verificando.set(false);
-        this.router.navigate(['/mis-operaciones']);
+        this.router.navigate(['/mis-cuentas']);
       },
       error: (fallo) => {
         this.error.set(fallo instanceof ErrorBanquito && fallo.estado === 404

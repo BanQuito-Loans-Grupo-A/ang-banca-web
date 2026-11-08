@@ -1,0 +1,160 @@
+<div class="bq-pagina bq-pila bq-animar">
+  <header>
+    <hr class="bq-regla" />
+    <h1>Mis cuentas</h1>
+    <p class="bq-suave">
+      @if (nombre()) {
+        Hola, {{ nombre() }}. Este es el saldo actual y los movimientos de sus cuentas en BanQuito.
+      } @else {
+        Saldo actual y movimientos de sus cuentas en BanQuito.
+      }
+    </p>
+  </header>
+
+  @if (cargando()) {
+    <div class="bq-tarjeta bq-tarjeta--contorno"><bq-cargando mensaje="Consultando sus cuentas" [filas]="4" /></div>
+  } @else if (error()) {
+    <div class="bq-aviso bq-aviso--error" role="alert">
+      <bq-icono nombre="alerta" />
+      <p>{{ error() }}</p>
+    </div>
+    <button type="button" class="bq-boton bq-boton--secundario bq-boton--pequeno reintentar" (click)="consultarCuentas()">
+      Intentar de nuevo
+    </button>
+  } @else if (!cuentas().length) {
+    <bq-vacio
+      titulo="Todavía no tiene cuentas registradas"
+      detalle="Cuando abra una cuenta en BanQuito, aquí verá su saldo y sus movimientos."
+      icono="billetera"
+    />
+  } @else {
+    <section class="resumen bq-tarjeta bq-tarjeta--elevada" aria-labelledby="titulo-saldo">
+      <div class="resumen__principal">
+        <p class="resumen__titulo" id="titulo-saldo">Saldo disponible total</p>
+        <p class="cifra"><bq-cifra [valor]="saldoTotal()" /></p>
+        <p class="resumen__nota">
+          {{ cuentasActivas() }} {{ cuentasActivas() === 1 ? 'cuenta activa' : 'cuentas activas' }}
+        </p>
+      </div>
+      <span class="bq-medallon resumen__icono" aria-hidden="true"><bq-icono nombre="billetera" [tamano]="26" /></span>
+    </section>
+
+    <section class="bq-pila-corta" aria-labelledby="titulo-cuentas">
+      <h2 id="titulo-cuentas">Elija una cuenta</h2>
+      <div class="cuentas bq-animar-lista" role="radiogroup" aria-labelledby="titulo-cuentas">
+        @for (cuenta of cuentas(); track cuenta.numeroCuenta) {
+          <label class="bq-opcion cuenta">
+            <input
+              type="radio"
+              name="cuenta"
+              [value]="cuenta.numeroCuenta"
+              [checked]="seleccionada() === cuenta.numeroCuenta"
+              (change)="seleccionar(cuenta.numeroCuenta)"
+            />
+            <span class="cuenta__cuerpo">
+              <span class="cuenta__cabecera">
+                <span class="bq-opcion__titulo">{{ nombreCuenta(cuenta.tipoCuenta) }}</span>
+                <bq-chip-estado [estado]="cuenta.estado" />
+              </span>
+              <span class="bq-opcion__detalle">{{ terminacion(cuenta.numeroCuenta) }}</span>
+              <span class="cuenta__saldo">{{ cuenta.saldo | dinero }}</span>
+            </span>
+          </label>
+        }
+      </div>
+    </section>
+
+    @if (cuentaActual(); as cuenta) {
+      <section class="bq-tarjeta bq-tarjeta--contorno" aria-labelledby="titulo-movimientos" aria-live="polite">
+        <div class="bq-tarjeta__titulo">
+          <div>
+            <h2 id="titulo-movimientos">Movimientos</h2>
+            <p class="bq-suave subtitulo">
+              {{ nombreCuenta(cuenta.tipoCuenta) }} N.º {{ cuenta.numeroCuenta }} · abierta el
+              {{ cuenta.fechaApertura | fecha: 'larga' }}
+            </p>
+          </div>
+          <div class="bq-dato saldo-cuenta">
+            <span class="bq-dato__clave">Saldo actual</span>
+            <span class="bq-dato__valor">{{ cuenta.saldo | dinero }}</span>
+          </div>
+        </div>
+
+        @if (cargandoMovimientos() && !movimientos().length) {
+          <bq-cargando mensaje="Cargando los movimientos" [filas]="5" />
+        } @else if (errorMovimientos()) {
+          <div class="bq-aviso bq-aviso--error" role="alert">
+            <bq-icono nombre="alerta" />
+            <p>{{ errorMovimientos() }}</p>
+          </div>
+        } @else if (movimientos().length) {
+          <div class="bq-tabla-envoltura" [class.actualizando]="cargandoMovimientos()">
+            <table class="bq-tabla movimientos">
+              <caption>Movimientos de la cuenta {{ cuenta.numeroCuenta }}, del más reciente al más antiguo</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Fecha</th>
+                  <th scope="col">Detalle</th>
+                  <th scope="col" class="bq-num">Valor</th>
+                  <th scope="col" class="bq-num">Saldo</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (movimiento of movimientos(); track $index) {
+                  <tr>
+                    <td class="celda-fecha">
+                      <span class="fecha">{{ movimiento.fechaHoraRegistro | fecha }}</span>
+                      <span class="hora">{{ hora(movimiento.fechaHoraRegistro) }}</span>
+                    </td>
+                    <td class="detalle">
+                      <span class="concepto">
+                        <span class="concepto__icono" [class.concepto__icono--credito]="movimiento.tipo === 'CREDITO'" aria-hidden="true">
+                          <bq-icono [nombre]="movimiento.tipo === 'CREDITO' ? 'mas' : 'pago'" [tamano]="16" />
+                        </span>
+                        {{ movimiento.concepto | etiqueta }}
+                      </span>
+                      @if (movimiento.referencia) {
+                        <span class="referencia">{{ movimiento.referencia }}</span>
+                      }
+                    </td>
+                    <td class="bq-num valor" [class.valor--credito]="movimiento.tipo === 'CREDITO'">
+                      <span class="bq-solo-lectores">{{ movimiento.tipo | etiqueta }}: </span>
+                      {{ movimiento.tipo === 'CREDITO' ? '+' : '−' }}{{ movimiento.monto | dinero }}
+                    </td>
+                    <td class="bq-num celda-saldo"><span class="celda-saldo__clave">Saldo </span>{{ movimiento.saldoPosterior | dinero }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          @if (totalPaginas() > 1) {
+            <nav class="paginacion" aria-label="Páginas de movimientos">
+              <button
+                type="button"
+                class="bq-boton bq-boton--secundario bq-boton--pequeno"
+                [disabled]="pagina() === 0 || cargandoMovimientos()"
+                (click)="irAPagina(pagina() - 1)"
+              >
+                <bq-icono nombre="flecha-izquierda" [tamano]="16" />
+                Más recientes
+              </button>
+              <span class="bq-suave">Página {{ pagina() + 1 }} de {{ totalPaginas() }} · {{ totalMovimientos() }} movimientos</span>
+              <button
+                type="button"
+                class="bq-boton bq-boton--secundario bq-boton--pequeno"
+                [disabled]="pagina() + 1 >= totalPaginas() || cargandoMovimientos()"
+                (click)="irAPagina(pagina() + 1)"
+              >
+                Anteriores
+                <bq-icono nombre="flecha-derecha" [tamano]="16" />
+              </button>
+            </nav>
+          }
+        } @else {
+          <bq-vacio titulo="Esta cuenta todavía no tiene movimientos" icono="dinero" />
+        }
+      </section>
+    }
+  }
+</div>

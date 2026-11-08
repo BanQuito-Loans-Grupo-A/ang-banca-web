@@ -502,6 +502,25 @@ export interface CuentaCliente {
   estado: string;
 }
 
+export interface CuentaConSaldo {
+  numeroCuenta: string;
+  tipoCuenta: string;
+  estado: string;
+  saldo: number;
+  fechaApertura: string;
+}
+
+export type TipoMovimiento = 'CREDITO' | 'DEBITO';
+
+export interface MovimientoCuenta {
+  tipo: TipoMovimiento;
+  concepto: string;
+  monto: number;
+  saldoPosterior: number;
+  referencia: string | null;
+  fechaHoraRegistro: string;
+}
+
 export interface NuevoValorParametro {
   valor: number;
   vigenteDesde: string;

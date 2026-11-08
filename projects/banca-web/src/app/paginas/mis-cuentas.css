@@ -1,0 +1,239 @@
+.reintentar {
+  align-self: flex-start;
+}
+
+.resumen {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--bq-esp-4);
+  background: var(--bq-superficie);
+  border: 1px solid var(--bq-borde);
+  border-top: 4px solid var(--bq-marca-viva);
+}
+
+.resumen__titulo {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--bq-texto-suave);
+}
+
+.cifra {
+  margin: var(--bq-esp-2) 0;
+  font-size: clamp(2.5rem, 1.9rem + 3.2vw, 3.75rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--bq-marca-viva);
+}
+
+.resumen__nota {
+  margin: 0;
+  color: var(--bq-texto-suave);
+}
+
+.resumen__icono {
+  margin-bottom: 0;
+}
+
+.cuentas {
+  display: grid;
+  gap: var(--bq-esp-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+}
+
+.cuenta {
+  align-items: flex-start;
+}
+
+.cuenta__cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cuenta__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bq-esp-2);
+  flex-wrap: wrap;
+}
+
+.cuenta__saldo {
+  margin-top: var(--bq-esp-2);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--bq-texto);
+  font-variant-numeric: tabular-nums;
+}
+
+.subtitulo {
+  margin: var(--bq-esp-1) 0 0;
+  font-size: 0.9375rem;
+}
+
+.saldo-cuenta {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.bq-tabla-envoltura {
+  transition: opacity var(--bq-dur) var(--bq-salida);
+}
+
+.bq-tabla-envoltura.actualizando {
+  opacity: 0.55;
+}
+
+.fecha {
+  display: block;
+  font-weight: 600;
+}
+
+.hora {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--bq-texto-tenue);
+}
+
+.detalle {
+  white-space: normal;
+  min-width: 220px;
+}
+
+.concepto {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--bq-esp-2);
+  font-weight: 600;
+}
+
+.concepto__icono {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--bq-tinte);
+  color: var(--bq-texto-suave);
+}
+
+.concepto__icono--credito {
+  background: var(--bq-exito-fondo);
+  color: var(--bq-exito);
+}
+
+.referencia {
+  display: block;
+  margin-top: 2px;
+  padding-left: calc(26px + var(--bq-esp-2));
+  font-size: 0.8125rem;
+  color: var(--bq-texto-tenue);
+}
+
+.valor {
+  font-weight: 700;
+}
+
+.valor--credito {
+  color: var(--bq-exito);
+}
+
+.celda-saldo__clave {
+  display: none;
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bq-esp-3);
+  flex-wrap: wrap;
+  margin-top: var(--bq-esp-4);
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 560px) {
+  .resumen__icono {
+    display: none;
+  }
+
+  .saldo-cuenta {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .paginacion {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .movimientos caption {
+    white-space: normal;
+  }
+
+  .movimientos thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .movimientos tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'detalle valor'
+      'fecha saldo';
+    column-gap: var(--bq-esp-3);
+    row-gap: var(--bq-esp-1);
+    padding: var(--bq-esp-3) 0;
+    border-bottom: 1px solid var(--bq-borde);
+  }
+
+  .movimientos tbody td {
+    padding: 0;
+    border: 0;
+    white-space: normal;
+  }
+
+  .movimientos .detalle {
+    grid-area: detalle;
+    min-width: 0;
+  }
+
+  .movimientos .valor {
+    grid-area: valor;
+  }
+
+  .movimientos .celda-fecha {
+    grid-area: fecha;
+    display: flex;
+    gap: var(--bq-esp-2);
+    padding-left: calc(26px + var(--bq-esp-2));
+    font-size: 0.8125rem;
+    color: var(--bq-texto-tenue);
+  }
+
+  .movimientos .celda-fecha .fecha {
+    font-weight: 500;
+  }
+
+  .movimientos .celda-saldo {
+    grid-area: saldo;
+    font-size: 0.8125rem;
+    color: var(--bq-texto-tenue);
+  }
+
+  .celda-saldo__clave {
+    display: inline;
+  }
+}

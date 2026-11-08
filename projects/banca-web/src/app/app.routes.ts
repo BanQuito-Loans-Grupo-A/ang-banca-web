@@ -26,6 +26,12 @@ export const rutas: Routes = [
     loadComponent: () => import('./paginas/mis-solicitudes').then((m) => m.MisSolicitudes),
   },
   {
+    path: 'mis-cuentas',
+    canActivate: [guardiaSesion('/ingreso')],
+    title: 'Mis cuentas · BanQuito',
+    loadComponent: () => import('./paginas/mis-cuentas').then((m) => m.MisCuentas),
+  },
+  {
     path: 'mis-operaciones',
     canActivate: [guardiaSesion('/ingreso')],
     title: 'Mis préstamos · BanQuito',

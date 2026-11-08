@@ -47,6 +47,16 @@ const ETIQUETAS: Record<string, string> = {
   MORA: 'Mora',
   INTERES: 'Interés',
   CAPITAL: 'Capital',
+  ACTIVA: 'Activa',
+  INACTIVA: 'Inactiva',
+  CREDITO: 'Crédito',
+  DEBITO: 'Débito',
+  DEPOSITO: 'Depósito',
+  DESEMBOLSO: 'Desembolso de préstamo',
+  RETENCION_SOLCA: 'Contribución SOLCA',
+  COBRO_CUOTA: 'Pago de cuota',
+  DEVOLUCION_EXCEDENTE: 'Devolución de excedente',
+  DEVOLUCION_RECHAZO: 'Devolución de pago rechazado',
 };
 
 @Pipe({ name: 'etiqueta' })

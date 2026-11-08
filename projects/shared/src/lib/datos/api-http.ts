@@ -11,7 +11,7 @@ import {
   ReporteMorosidad, ReporteRollRate, ReporteSaludPortafolio, ResolucionRespuesta, ResumenAbono,
   Simulacion, SolicitudAbono, SolicitudBandeja, SolicitudCliente, SolicitudDetalle,
   SolicitudRegistrada, SolicitudSimulacion, TramoCartera, ClienteIdentificado, AnalistaIdentificado,
-  CuentaCliente, DatosTramo, NuevoValorParametro, ArchivoRecaudacion,
+  CuentaCliente, DatosTramo, NuevoValorParametro, ArchivoRecaudacion, CuentaConSaldo, MovimientoCuenta,
 } from '../core/modelos';
 
 @Injectable()
@@ -47,6 +47,17 @@ export class ApiHttp extends ApiBanquito {
 
   cuentasDelCliente(identificacion: string): Observable<CuentaCliente[]> {
     return this.http.get<CuentaCliente[]>(this.url(`/clientes/${identificacion}/cuentas`));
+  }
+
+  saldosDelCliente(identificacion: string): Observable<CuentaConSaldo[]> {
+    return this.http.get<CuentaConSaldo[]>(this.url(`/clientes/${identificacion}/cuentas/saldos`));
+  }
+
+  movimientosCuenta(identificacion: string, numeroCuenta: string, pagina: number): Observable<Pagina<MovimientoCuenta>> {
+    return this.http.get<Pagina<MovimientoCuenta>>(
+      this.url(`/clientes/${identificacion}/cuentas/${numeroCuenta}/movimientos`),
+      { params: this.paginado(pagina) },
+    );
   }
 
   identificarCliente(identificacion: string): Observable<ClienteIdentificado> {

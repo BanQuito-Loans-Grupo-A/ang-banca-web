@@ -2,7 +2,8 @@ import { generarTabla, seguroMensual, contribucionSolca, tasaMensualDesdeTea, ta
 import { redondear, restar } from '../core/dinero';
 import { sumarDias, sumarMeses } from '../core/fechas';
 import {
-  CuotaTabla, EstadoPrestamo, OperacionDetalle, SistemaAmortizacion, SolicitudBandeja, SolicitudCliente,
+  CuentaConSaldo, CuotaTabla, EstadoPrestamo, MovimientoCuenta, OperacionDetalle, SistemaAmortizacion, SolicitudBandeja,
+  SolicitudCliente, TipoMovimiento,
 } from '../core/modelos';
 
 export const FECHA_NEGOCIO_INICIAL = '2026-10-31';
@@ -144,3 +145,123 @@ export const SOLICITUDES_CLIENTE: SolicitudCliente[] = [
   { idSolicitud: 180, montoSolicitado: 8000, plazoMes: 24, sistemaAmortizacion: 'FRANCES', destino: 'OTRO', estado: 'DESEMBOLSADA', teaAsignada: 16.2, motivoRechazo: null, fechaHoraRegistro: '2026-04-12T10:00:00', fechaHoraResolucion: '2026-04-13T16:20:00' },
   { idSolicitud: 164, montoSolicitado: 26000, plazoMes: 60, sistemaAmortizacion: 'ALEMAN', destino: 'SALUD', estado: 'RECHAZADA', teaAsignada: null, motivoRechazo: 'La cuota proyectada supera el 40 % del remanente mensual', fechaHoraRegistro: '2026-02-03T08:45:00', fechaHoraResolucion: '2026-02-03T08:45:00' },
 ];
+
+interface EventoCuenta {
+  fechaHora: string;
+  tipo: TipoMovimiento;
+  concepto: string;
+  monto: number;
+  referencia: string | null;
+}
+
+const CUENTA_SIN_PRESTAMOS = '2200000001';
+
+function cuentasDeAhorro(identificacion: string): string[] {
+  const propias = OPERACIONES.filter(({ detalle }) => detalle.identificacionCliente === identificacion)
+    .map(({ detalle }) => detalle.cuentaDestino);
+  return propias.length ? [...new Set(propias)] : [CUENTA_SIN_PRESTAMOS];
+}
+
+function cuentaCorriente(identificacion: string): string {
+  return `${cuentasDeAhorro(identificacion)[0].slice(0, -3)}999`;
+}
+
+function eventosDeAhorro(numeroCuenta: string): EventoCuenta[] {
+  const operaciones = OPERACIONES.filter(({ detalle }) => detalle.cuentaDestino === numeroCuenta);
+  const primerDesembolso = operaciones.map(({ detalle }) => detalle.fechaDesembolso).sort()[0]
+    ?? sumarMeses(FECHA_NEGOCIO_INICIAL, -4);
+  const eventos: EventoCuenta[] = [
+    { fechaHora: `${sumarDias(primerDesembolso, -20)}T10:12:00`, tipo: 'CREDITO', concepto: 'DEPOSITO', monto: 450, referencia: 'Depósito inicial en ventanilla' },
+  ];
+  if (!operaciones.length) {
+    for (let mes = 3; mes >= 1; mes--) {
+      eventos.push({ fechaHora: `${sumarMeses(FECHA_NEGOCIO_INICIAL, -mes)}T08:30:00`, tipo: 'CREDITO', concepto: 'DEPOSITO', monto: 820, referencia: 'Depósito de nómina' });
+    }
+    return eventos;
+  }
+  for (const { detalle, cuotas } of operaciones) {
+    eventos.push(
+      { fechaHora: `${detalle.fechaDesembolso}T11:05:00`, tipo: 'CREDITO', concepto: 'DESEMBOLSO', monto: detalle.montoAprobado, referencia: `${detalle.referenciaDesembolso} · préstamo ${detalle.numeroPrestamo}` },
+      { fechaHora: `${detalle.fechaDesembolso}T11:05:30`, tipo: 'DEBITO', concepto: 'RETENCION_SOLCA', monto: detalle.contribucionSolca, referencia: `Préstamo ${detalle.numeroPrestamo}` },
+    );
+    const cancelacion = detalle.fechaCancelacion;
+    let pendienteCancelacion = 0;
+    for (const cuota of cuotas) {
+      const pagado = redondear(cuota.capitalPagado + cuota.interesPagado + cuota.seguroPagado);
+      if (pagado <= 0) {
+        continue;
+      }
+      if (cancelacion && cuota.fechaVencimiento > cancelacion) {
+        pendienteCancelacion = redondear(pendienteCancelacion + pagado);
+        continue;
+      }
+      if (cuota.fechaVencimiento > FECHA_NEGOCIO_INICIAL) {
+        continue;
+      }
+      eventos.push(
+        { fechaHora: `${sumarDias(cuota.fechaVencimiento, -2)}T08:30:00`, tipo: 'CREDITO', concepto: 'DEPOSITO', monto: redondear(Math.ceil(pagado / 50) * 50 + 120), referencia: 'Depósito de nómina' },
+        { fechaHora: `${cuota.fechaVencimiento}T09:00:00`, tipo: 'DEBITO', concepto: 'COBRO_CUOTA', monto: pagado, referencia: `Préstamo ${detalle.numeroPrestamo} · cuota ${cuota.numeroCuota}` },
+      );
+    }
+    if (cancelacion && pendienteCancelacion > 0) {
+      eventos.push(
+        { fechaHora: `${sumarDias(cancelacion, -1)}T15:40:00`, tipo: 'CREDITO', concepto: 'DEPOSITO', monto: redondear(Math.ceil(pendienteCancelacion / 100) * 100), referencia: 'Transferencia recibida' },
+        { fechaHora: `${cancelacion}T10:00:00`, tipo: 'DEBITO', concepto: 'COBRO_CUOTA', monto: pendienteCancelacion, referencia: `Préstamo ${detalle.numeroPrestamo} · cancelación anticipada` },
+      );
+    }
+  }
+  return eventos;
+}
+
+function eventosDeCorriente(): EventoCuenta[] {
+  return [
+    { fechaHora: `${sumarMeses(FECHA_NEGOCIO_INICIAL, -2)}T09:20:00`, tipo: 'CREDITO', concepto: 'DEPOSITO', monto: 300, referencia: 'Depósito inicial en ventanilla' },
+    { fechaHora: `${sumarMeses(FECHA_NEGOCIO_INICIAL, -1)}T16:45:00`, tipo: 'CREDITO', concepto: 'DEPOSITO', monto: 185.5, referencia: 'Transferencia recibida' },
+  ];
+}
+
+function aplicarSaldos(eventos: EventoCuenta[]): MovimientoCuenta[] {
+  let saldo = 0;
+  return [...eventos]
+    .sort((a, b) => a.fechaHora.localeCompare(b.fechaHora))
+    .map((evento) => {
+      saldo = redondear(saldo + (evento.tipo === 'CREDITO' ? evento.monto : -evento.monto));
+      return {
+        tipo: evento.tipo,
+        concepto: evento.concepto,
+        monto: evento.monto,
+        saldoPosterior: saldo,
+        referencia: evento.referencia,
+        fechaHoraRegistro: evento.fechaHora,
+      } satisfies MovimientoCuenta;
+    })
+    .reverse();
+}
+
+/** Movimientos de una cuenta del cliente, del más reciente al más antiguo; null si la cuenta no es suya. */
+export function movimientosSemilla(identificacion: string, numeroCuenta: string): MovimientoCuenta[] | null {
+  if (cuentasDeAhorro(identificacion).includes(numeroCuenta)) {
+    return aplicarSaldos(eventosDeAhorro(numeroCuenta));
+  }
+  if (cuentaCorriente(identificacion) === numeroCuenta) {
+    return aplicarSaldos(eventosDeCorriente());
+  }
+  return null;
+}
+
+export function cuentasSemilla(identificacion: string): CuentaConSaldo[] {
+  const cuentas: Array<{ numeroCuenta: string; tipoCuenta: string }> = [
+    ...cuentasDeAhorro(identificacion).map((numeroCuenta) => ({ numeroCuenta, tipoCuenta: 'AHORROS' })),
+    { numeroCuenta: cuentaCorriente(identificacion), tipoCuenta: 'CORRIENTE' },
+  ];
+  return cuentas.map(({ numeroCuenta, tipoCuenta }) => {
+    const movimientos = movimientosSemilla(identificacion, numeroCuenta) ?? [];
+    return {
+      numeroCuenta,
+      tipoCuenta,
+      estado: 'ACTIVA',
+      saldo: movimientos[0]?.saldoPosterior ?? 0,
+      fechaApertura: (movimientos.at(-1)?.fechaHoraRegistro ?? FECHA_NEGOCIO_INICIAL).slice(0, 10),
+    };
+  });
+}

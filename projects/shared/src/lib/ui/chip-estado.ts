@@ -10,6 +10,7 @@ const TONOS: Record<string, string> = {
   APROBADA: 'exito',
   APLICADA: 'exito',
   PROCESADO: 'exito',
+  ACTIVA: 'exito',
   VENCIDA: 'alerta',
   PAGO_PARCIAL: 'alerta',
   EN_CIERRE: 'alerta',

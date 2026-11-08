@@ -8,6 +8,7 @@ import {
   SolicitudDetalle, SolicitudRegistrada, SolicitudSimulacion, TramoCartera,
   RegistroSolicitud, AprobacionSolicitud, RechazoSolicitud, DesembolsoSolicitud,
   ClienteIdentificado, AnalistaIdentificado, CuentaCliente, DatosTramo, NuevoValorParametro, ArchivoRecaudacion,
+  CuentaConSaldo, MovimientoCuenta,
 } from '../core/modelos';
 
 export abstract class ApiBanquito {
@@ -17,6 +18,8 @@ export abstract class ApiBanquito {
 
   abstract identificarCliente(identificacion: string): Observable<ClienteIdentificado>;
   abstract cuentasDelCliente(identificacion: string): Observable<CuentaCliente[]>;
+  abstract saldosDelCliente(identificacion: string): Observable<CuentaConSaldo[]>;
+  abstract movimientosCuenta(identificacion: string, numeroCuenta: string, pagina: number): Observable<Pagina<MovimientoCuenta>>;
   abstract identificarAnalista(identificacion: string): Observable<AnalistaIdentificado>;
 
   abstract registrarSolicitud(registro: RegistroSolicitud): Observable<SolicitudRegistrada>;

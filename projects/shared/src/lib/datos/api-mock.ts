@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, delay, map, of, throwError } from 'rxjs';
 import { ApiBanquito } from './api';
-import { FECHA_NEGOCIO_INICIAL, OPERACIONES, SOLICITUDES_BANDEJA, SOLICITUDES_CLIENTE } from './semilla';
+import {
+  FECHA_NEGOCIO_INICIAL, OPERACIONES, SOLICITUDES_BANDEJA, SOLICITUDES_CLIENTE, cuentasSemilla, movimientosSemilla,
+} from './semilla';
 import { simular as calcularSimulacion } from '../core/amortizacion';
 import { redondear } from '../core/dinero';
 import { sumarDias, sumarMeses } from '../core/fechas';
@@ -14,7 +16,7 @@ import {
   ReporteMorosidad, ReporteRollRate, ReporteSaludPortafolio, ResolucionRespuesta, ResumenAbono,
   Simulacion, SolicitudAbono, SolicitudBandeja, SolicitudCliente, SolicitudDetalle,
   SolicitudRegistrada, SolicitudSimulacion, TramoCartera, ClienteIdentificado, AnalistaIdentificado,
-  CuentaCliente, DatosTramo, NuevoValorParametro, ArchivoRecaudacion,
+  CuentaCliente, DatosTramo, NuevoValorParametro, ArchivoRecaudacion, CuentaConSaldo, MovimientoCuenta,
 } from '../core/modelos';
 
 const RETARDO = 260;
@@ -115,6 +117,18 @@ export class ApiMock extends ApiBanquito {
       ...numeros.map((numeroCuenta) => ({ numeroCuenta, tipoCuenta: 'AHORROS', estado: 'ACTIVA' })),
       { numeroCuenta: `${numeros[0].slice(0, -3)}999`, tipoCuenta: 'CORRIENTE', estado: 'ACTIVA' },
     ]);
+  }
+
+  saldosDelCliente(identificacion: string): Observable<CuentaConSaldo[]> {
+    return responder(cuentasSemilla(identificacion));
+  }
+
+  movimientosCuenta(identificacion: string, numeroCuenta: string, pagina: number): Observable<Pagina<MovimientoCuenta>> {
+    const movimientos = movimientosSemilla(identificacion, numeroCuenta);
+    if (!movimientos) {
+      return throwError(() => new ErrorBanquito('La cuenta no pertenece al cliente', 'RECURSO_NO_ENCONTRADO', 404));
+    }
+    return responder(paginar(movimientos, pagina));
   }
 
   identificarCliente(identificacion: string): Observable<ClienteIdentificado> {
